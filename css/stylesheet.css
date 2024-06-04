@@ -238,6 +238,16 @@ body {
     margin-right: 20px;
 }
 
+.image-center {
+    vertical-align: middle;
+    text-align: center;
+}
+
+.image-shrink {
+    width: 200px;
+    height: 200px;
+}
+
 .text-left {
     text-align: left;
     vertical-align: middle;
@@ -249,6 +259,12 @@ body {
     vertical-align: middle;
     padding-right: 20px !important; 
 }
+
+.text-shrink {
+    font-size: auto;
+}
+
+
 
 .equal-width-table {
     table-layout: fixed;
@@ -280,6 +296,12 @@ body {
         min-height: 8rem;
         display: flex;
         flex-direction: column;
+    }
+}
+
+@media screen and (max-width: 750px) {
+    .text-shrink {
+        font-size: 1.0rem;
     }
 }
 
