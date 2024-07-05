@@ -8,7 +8,16 @@
     <meta name="author" content="Jessica Wylde" />
     <title>Jessica Wylde</title>
     <!-- Favicon-->
-    <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/favicons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/favicons/favicon-16x16.png">
+    <link rel="manifest" href="assets/favicons/site.webmanifest">
+    <link rel="mask-icon" href="assets/favicons/safari-pinned-tab.svg" color="#6d14e7">
+    <link rel="shortcut icon" href="assets/favicons/favicon.ico">
+    <meta name="msapplication-TileColor" content="#603cba">
+    <meta name="msapplication-config" content="assets/favicons/browserconfig.xml">
+    <meta name="theme-color" content="#ffffff">
+
     <!-- Core theme CSS (includes Bootstrap)-->
     <link href="css/bootstrap.css" rel="stylesheet" />
     <link href="css/stylesheet.css" rel="stylesheet" />
@@ -18,28 +27,29 @@
     <!-- Responsive navbar-->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
-            <a class="navbar-brand fancy-font" href="#"><img src="assets/favicon.ico" width="30" height="30" alt="">
+            <a class="navbar-brand fancy-font" href="#"><img src="assets/logos/LogoJWWhite.svg" width="50" height="50" alt="logo">
                 Jessica
                 Wylde</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
-                aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                     <li class="nav-item"><a class="nav-link" aria-current="page" href="index.html">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="about-me.html">About Me</a></li>
-                    <li class="nav-item"><a class="nav-link" href="projects.html">Projects</a></li>
-                    <li class="nav-item"><a class="nav-link active" href="blog.html">Blog</a></li>
-                    <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
                     <li class="nav-item">
                         <div class="nav-divider"></div>
                     </li>
-                    <li class="nav-item"><span class="nav-link active">Dark Mode</span></li>
+                    <li class="nav-item"><a class="nav-link" href="about-me.html">About Me</a></li>
                     <li class="nav-item">
-                        <div class="form-check form-switch">
-                            <label for="darkModeToggle"></label><input class="form-check-input" type="checkbox" id="darkModeToggle">
-                        </div>
+                        <div class="nav-divider"></div>
                     </li>
+                    <li class="nav-item"><a class="nav-link" href="projects.html">Projects</a></li>
+                    <li class="nav-item">
+                        <div class="nav-divider"></div>
+                    </li>
+                    <li class="nav-item"><a class="nav-link active" href="blog.html">Blog</a></li>
+                    <li class="nav-item">
+                        <div class="nav-divider"></div>
+                    </li>
+                    <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
                 </ul>
             </div>
         </div>
