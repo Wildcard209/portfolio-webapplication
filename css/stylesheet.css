@@ -280,6 +280,14 @@ body {
     width: 25%;
 }
 
+#timelineCanvas {
+    border: 1px solid #000;
+    display: block;
+    margin: 0 auto;
+    width: 1500px;
+    height: 200px;
+}
+
 @media screen and (max-width: 991px) {
     .nav-divider {
         border-right: none;
