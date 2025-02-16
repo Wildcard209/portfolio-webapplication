@@ -101,7 +101,6 @@ body {
   box-shadow: 5px 5px #878787;
 }
 .card-body {
-  min-height: 10rem;
   display: flex;
   flex-direction: column;
 }
