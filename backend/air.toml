@@ -1,0 +1,5 @@
+[build]
+bin = "./app"
+cmd = "go build -o ./app"
+include_ext = ["go", "tmpl"]
+exclude_dir = ["vendor"]
