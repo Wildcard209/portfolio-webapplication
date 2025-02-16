@@ -7,16 +7,15 @@ export default function Blog() {
             <div className="row justify-content-center align-items-center">
                 <div className="col-md-8"></div>
                     <BlogCard
-                        name="Dynamic Blog Title"
+                        title="Dynamic Blog Title"
                         description="This is a blog description. It contains insightful content!This is a blog description. It contains insightful content!This is a blog description. It contains insightful content!This is a blog description. It contains insightful content!This is a blog description. It contains insightful content!This is a blog description. It contains insightful content!This is a blog description. It contains insightful content!This is a blog description. It contains insightful content!This is a blog description. It contains insightful content!"
                         lastUpdated={new Date(new Date().getTime() - 3600000)}
                         imageId="1"
                         imageAlt="one"
-
                     />
 
                     <BlogCard
-                        name="Dynamic Blog Title 2"
+                        title="Dynamic Blog Title 2"
                         description="This is a blog description. It contains insightful content!"
                         lastUpdated={new Date(new Date().getTime() - 1500000)}
                         imageId="2"
@@ -24,7 +23,7 @@ export default function Blog() {
                     />
 
                     <BlogCard
-                        name="Dynamic Blog Title 3"
+                        title="Dynamic Blog Title 3"
                         description="This is a blog description. It contains insightful content!"
                         lastUpdated={new Date(new Date().getTime())}
                     />
