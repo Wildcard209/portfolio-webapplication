@@ -1,5 +1,6 @@
 'use client';
 
+import styles from "./BlogCard.module.css"
 import React, { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 
@@ -79,7 +80,7 @@ const BlogCard: React.FC<BlogCardProps> = ({ name, description, lastUpdated, ima
     }, []);
 
     return (
-        <div ref={cardRef} className="card card-as-button card-blog">
+        <div ref={cardRef} className={`card card-as-button ${styles["card-blog"]}`}>
             <div className="row g-0 align-items-center">
                 <div className="col-md-8">
                     <div className="card-body">
@@ -101,9 +102,7 @@ const BlogCard: React.FC<BlogCardProps> = ({ name, description, lastUpdated, ima
                             alt={imageAlt}
                             width={180}
                             height={180}
-                            style={{
-                                objectFit: "cover"
-                            }}
+                            className={`${styles["card-image-blog"]}`}
                         />
                     </div>
                 )}
