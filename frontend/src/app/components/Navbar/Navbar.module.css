@@ -1,0 +1,28 @@
+.logo-text {
+    position: relative;
+    top: 6px;
+}
+
+.nav-divider {
+    border-right: 1px solid var(--bs-gray);
+    height: 40px;
+}
+
+.nav-button {
+    border-radius: 0 !important;
+}
+
+@media screen and (max-width: 991px) {
+    .nav-divider {
+        border-right: none;
+        border-top: 1px solid var(--bs-gray);
+        width: 100%;
+        height: auto;
+    }
+}
+
+@media screen and (max-width: 418px) {
+    .logo-text {
+        display: none;
+    }
+}

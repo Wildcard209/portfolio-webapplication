@@ -1,5 +1,6 @@
 "use client";
 
+import styles from "./Navbar.module.css";
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
@@ -17,10 +18,10 @@ export default function Navbar() {
                         height={50}
                         alt="JW"
                     />
-                    <span className="logo-text">Jessica Wylde</span>
+                    <span className={`${styles["logo-text"]}`}>Jessica Wylde</span>
                 </Link>
                 <button
-                    className="navbar-toggler"
+                    className={`navbar-toggler ${styles["nav-button"]} `}
                     type="button"
                     data-bs-toggle="collapse"
                     data-bs-target="#navbarSupportedContent"
@@ -38,7 +39,7 @@ export default function Navbar() {
                             </Link>
                         </li>
                         <li className="nav-item">
-                            <div className="nav-divider"></div>
+                            <div className={`${styles["nav-divider"]}`}></div>
                         </li>
                         <li className="nav-item">
                             <Link href="/about-me" className={`nav-link ${pathname === '/about-me' ? 'active' : ''}`}>
@@ -46,7 +47,7 @@ export default function Navbar() {
                             </Link>
                         </li>
                         <li className="nav-item">
-                            <div className="nav-divider"></div>
+                            <div className={`${styles["nav-divider"]}`}></div>
                         </li>
                         <li className="nav-item">
                             <Link href="/projects" className={`nav-link ${pathname === '/projects' ? 'active' : ''}`}>
@@ -54,7 +55,7 @@ export default function Navbar() {
                             </Link>
                         </li>
                         <li className="nav-item">
-                            <div className="nav-divider"></div>
+                            <div className={`${styles["nav-divider"]}`}></div>
                         </li>
                         <li className="nav-item">
                             <Link href="/blog" className={`nav-link ${pathname === '/blog' ? 'active' : ''}`}>
@@ -62,7 +63,7 @@ export default function Navbar() {
                             </Link>
                         </li>
                         <li className="nav-item">
-                            <div className="nav-divider"></div>
+                            <div className={`${styles["nav-divider"]}`}></div>
                         </li>
                         <li className="nav-item">
                             <Link href="/contact" className={`nav-link ${pathname === '/contact' ? 'active' : ''}`}>

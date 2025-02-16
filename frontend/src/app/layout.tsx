@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Navbar from "@/app/components/Navbar";
+import Navbar from "@/app/components/Navbar/Navbar";
 import Footer from "@/app/components/Footer/Footer";
 import ClientWrapper from "@/app/components/ClientWrapper";
 import localFont from "next/font/local";
@@ -29,12 +29,7 @@ export default function RootLayout(
         <html lang="en" className={`${roboto.variable} ${peanutButter.variable}`}>
         <head>
             {/* Favicon Links */}
-            <link
-                rel="icon"
-                type="image/png"
-                sizes="32x32"
-                href="/assets/favicons/favicon-32x32.png"
-            />
+            <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicons/favicon-32x32.png"/>
             <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicons/favicon-16x16.png"/>
             <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
             <meta name="theme-color" content="#ffffff" />
