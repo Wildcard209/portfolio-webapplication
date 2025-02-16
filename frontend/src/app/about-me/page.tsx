@@ -1,4 +1,6 @@
-import Image from 'next/image';
+// pages/about-me.js
+import ImageContent from "../components/CodeTable/ImageContent";
+import TextContent from "../components/CodeTable/TextContent";
 
 export default function AboutMePage() {
     return (
@@ -7,178 +9,138 @@ export default function AboutMePage() {
             <table className="table equal-width-table">
                 <tbody>
                 <tr>
-                    <td className="image-center">
-                        <Image
-                            src="/assets/logos/csharp.svg"
-                            className="image-right image-shrink"
-                            width={500}
-                            height={500}
-                            alt="C#"
+                    <td>
+                        <ImageContent
+                            images={[{ src: '/assets/logos/csharp.svg', alt: 'C#' }]}
+                            alignment="right"
                         />
                     </td>
-                    <td className="text-left text-shrink"><h5 className="text-shrink">Lorem ipsum dolor sit amet vero ipsum vero
-                        et magna et duis elitr vel diam dolore facilisi diam aliquyam sanctus et tempor gubergren tempor
-                        eu rebum erat possim dolore vulputate labore sit dolor vel et lorem sanctus amet nonumy amet
-                        gubergren soluta sed invidunt erat wisi in feugiat lobortis accusam dolores et tempor amet minim
-                        nonumy dolor nobis clita zzril nulla vel sed dolore sit ea sit no gubergren kasd at dolor amet
-                        eu et veniam eum quod elitr rebum</h5></td>
-                </tr>
-                <tr>
-                    <td className="text-right text-shrink"><h5 className="text-shrink">Lorem ipsum dolor sit amet vero ipsum
-                        vero et magna et duis elitr vel diam dolore facilisi diam aliquyam sanctus et tempor gubergren
-                        tempor eu rebum erat possim dolore vulputate labore sit dolor vel et lorem sanctus amet nonumy
-                        amet gubergren soluta sed invidunt erat wisi in feugiat lobortis accusam dolores et tempor amet
-                        minim nonumy dolor nobis clita zzril nulla vel sed dolore sit ea sit no gubergren kasd at dolor
-                        amet eu et veniam eum quod elitr rebum</h5></td>
-                    <td className="image-center">
-                        <Image
-                            src="/assets/logos/mysql.svg"
-                            className="image-left image-shrink"
-                            width={500}
-                            height={500}
-                            alt="MySql"
-                        />
-                        <Image
-                            src="/assets/logos/sql-server.svg"
-                            className="image-left image-shrink"
-                            width={500}
-                            height={500}
-                            alt="SQL"
+                    <td>
+                        <TextContent
+                            text="Lorem ipsum dolor sit amet vero ipsum vero..."
+                            alignment="left"
                         />
                     </td>
                 </tr>
                 <tr>
-                    <td className="image-center">
-                        <Image
-                            src="/assets/logos/git.svg"
-                            className="image-right image-shrink"
-                            width={500}
-                            height={500}
-                            alt="Git"
+                    <td>
+                        <TextContent
+                        text="Lorem ipsum dolor sit amet vero ipsum vero..."
+                        alignment="right"
                         />
+
                     </td>
-                    <td className="text-left text-shrink"><h5 className="text-shrink">Lorem ipsum dolor sit amet vero ipsum vero
-                        et magna et duis elitr vel diam dolore facilisi diam aliquyam sanctus et tempor gubergren tempor
-                        eu rebum erat possim dolore vulputate labore sit dolor vel et lorem sanctus amet nonumy amet
-                        gubergren soluta sed invidunt erat wisi in feugiat lobortis accusam dolores et tempor amet minim
-                        nonumy dolor nobis clita zzril nulla vel sed dolore sit ea sit no gubergren kasd at dolor amet
-                        eu et veniam eum quod elitr rebum</h5></td>
-                </tr>
-                <tr>
-                    <td className="text-right text-shrink"><h5 className="text-shrink">Lorem ipsum dolor sit amet vero ipsum
-                        vero et magna et duis elitr vel diam dolore facilisi diam aliquyam sanctus et tempor gubergren
-                        tempor eu rebum erat possim dolore vulputate labore sit dolor vel et lorem sanctus amet nonumy
-                        amet gubergren soluta sed invidunt erat wisi in feugiat lobortis accusam dolores et tempor amet
-                        minim nonumy dolor nobis clita zzril nulla vel sed dolore sit ea sit no gubergren kasd at dolor
-                        amet eu et veniam eum quod elitr rebum</h5></td>
-                    <td className="image-center">
-                        <Image
-                            src="/assets/logos/html.svg"
-                            className="image-left image-shrink"
-                            width={500}
-                            height={500}
-                            alt="HTML"
-                        />
-                        <Image
-                            src="/assets/logos/css.svg"
-                            className="image-left image-shrink"
-                            width={500}
-                            height={500}
-                            alt="CSS"
+                    <td>
+                        <ImageContent
+                            images={[
+                                { src: '/assets/logos/mysql.svg', alt: 'MySql' },
+                                { src: '/assets/logos/sql-server.svg', alt: 'SQL'}]}
+                            alignment="left"
                         />
                     </td>
                 </tr>
                 <tr>
-                    <td className="image-center">
-                        <Image
-                            src="/assets/logos/javascript.svg"
-                            className="image-right image-shrink"
-                            width={500}
-                            height={500}
-                            alt="Javascript"
-                        />
-                        <Image
-                            src="/assets/logos/typescript.svg"
-                            className="image-right image-shrink"
-                            width={500}
-                            height={500}
-                            alt="Typescript"
+                    <td>
+                        <ImageContent
+                            images={[{ src: '/assets/logos/git.svg', alt: 'Git' }]}
+                            alignment="right"
                         />
                     </td>
-                    <td className="text-left text-shrink"><h5 className="text-shrink">Lorem ipsum dolor sit amet vero ipsum vero
-                        et magna et duis elitr vel diam dolore facilisi diam aliquyam sanctus et tempor gubergren tempor
-                        eu rebum erat possim dolore vulputate labore sit dolor vel et lorem sanctus amet nonumy amet
-                        gubergren soluta sed invidunt erat wisi in feugiat lobortis accusam dolores et tempor amet minim
-                        nonumy dolor nobis clita zzril nulla vel sed dolore sit ea sit no gubergren kasd at dolor amet
-                        eu et veniam eum quod elitr rebum</h5></td>
-                </tr>
-                <tr>
-                    <td className="text-right text-shrink"><h5 className="text-shrink">Lorem ipsum dolor sit amet vero ipsum
-                        vero et magna et duis elitr vel diam dolore facilisi diam aliquyam sanctus et tempor gubergren
-                        tempor eu rebum erat possim dolore vulputate labore sit dolor vel et lorem sanctus amet nonumy
-                        amet gubergren soluta sed invidunt erat wisi in feugiat lobortis accusam dolores et tempor amet
-                        minim nonumy dolor nobis clita zzril nulla vel sed dolore sit ea sit no gubergren kasd at dolor
-                        amet eu et veniam eum quod elitr rebum</h5></td>
-                    <td className="image-center">
-                        <Image
-                            src="/assets/logos/c++.svg"
-                            className="image-left image-shrink"
-                            width={500}
-                            height={500}
-                            alt="C++"
+                    <td>
+                        <TextContent
+                            text="Lorem ipsum dolor sit amet vero ipsum vero..."
+                            alignment="left"
                         />
                     </td>
                 </tr>
                 <tr>
-                    <td className="image-center">
-                        <Image
-                            src="/assets/logos/python.svg"
-                            className="image-right image-shrink"
-                            width={500}
-                            height={500}
-                            alt="Python"
+                    <td>
+                        <TextContent
+                            text="Lorem ipsum dolor sit amet vero ipsum vero..."
+                            alignment="right"
                         />
+
                     </td>
-                    <td className="text-left text-shrink"><h5 className="text-shrink">Lorem ipsum dolor sit amet vero ipsum vero
-                        et magna et duis elitr vel diam dolore facilisi diam aliquyam sanctus et tempor gubergren tempor
-                        eu rebum erat possim dolore vulputate labore sit dolor vel et lorem sanctus amet nonumy amet
-                        gubergren soluta sed invidunt erat wisi in feugiat lobortis accusam dolores et tempor amet minim
-                        nonumy dolor nobis clita zzril nulla vel sed dolore sit ea sit no gubergren kasd at dolor amet
-                        eu et veniam eum quod elitr rebum</h5></td>
-                </tr>
-                <tr>
-                    <td className="text-right"><h5 className="text-shrink">Lorem ipsum dolor sit amet vero ipsum vero et magna
-                        et duis elitr vel diam dolore facilisi diam aliquyam sanctus et tempor gubergren tempor eu rebum
-                        erat possim dolore vulputate labore sit dolor vel et lorem sanctus amet nonumy amet gubergren
-                        soluta sed invidunt erat wisi in feugiat lobortis accusam dolores et tempor amet minim nonumy
-                        dolor nobis clita zzril nulla vel sed dolore sit ea sit no gubergren kasd at dolor amet eu et
-                        veniam eum quod elitr rebum</h5></td>
-                    <td className="image-center">
-                        <Image
-                            src="/assets/logos/opengl.svg"
-                            className="image-left image-shrink"
-                            width={500}
-                            height={500}
-                            alt="OpenGL"
+                    <td>
+                        <ImageContent
+                            images={[
+                                { src: '/assets/logos/html.svg', alt: 'HTML' },
+                                { src: '/assets/logos/css.svg', alt: 'CSS'}]}
+                            alignment="left"
                         />
                     </td>
                 </tr>
                 <tr>
-                    <td className="image-center">
-                        <Image
-                            src="/assets/logos/rust.svg"
-                            className="image-right image-shrink"
-                            width={500}
-                            height={500}
-                            alt="Rust"
+                    <td>
+                        <ImageContent
+                            images={[{ src: '/assets/logos/javascript.svg', alt: 'Javascript' },
+                                { src: '/assets/logos/typescript.svg', alt: 'Typescript'}
+                            ]}
+                            alignment="right"
                         />
                     </td>
-                    <td className="text-left"><h5 className="text-shrink">Lorem ipsum dolor sit amet vero ipsum vero et magna et
-                        duis elitr vel diam dolore facilisi diam aliquyam sanctus et tempor gubergren tempor eu rebum
-                        erat possim dolore vulputate labore sit dolor vel et lorem sanctus amet nonumy amet gubergren
-                        soluta sed invidunt erat wisi in feugiat lobortis accusam dolores et tempor amet minim nonumy
-                        dolor nobis clita zzril nulla vel sed dolore sit ea sit no gubergren kasd at dolor amet eu et
-                        veniam eum quod elitr rebum</h5></td>
+                    <td>
+                        <TextContent
+                            text="Lorem ipsum dolor sit amet vero ipsum vero..."
+                            alignment="left"
+                        />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <TextContent
+                            text="Lorem ipsum dolor sit amet vero ipsum vero..."
+                            alignment="right"
+                        />
+                    </td>
+                    <td>
+                        <ImageContent
+                            images={[{ src: '/assets/logos/c++.svg', alt: 'C++' }]}
+                            alignment="left"
+                        />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <ImageContent
+                            images={[{ src: '/assets/logos/python.svg', alt: 'Python' }]}
+                            alignment="right"
+                        />
+                    </td>
+                    <td>
+                        <TextContent
+                            text="Lorem ipsum dolor sit amet vero ipsum vero..."
+                            alignment="left"
+                        />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <TextContent
+                            text="Lorem ipsum dolor sit amet vero ipsum vero..."
+                            alignment="right"
+                        />
+                    </td>
+                    <td>
+                        <ImageContent
+                            images={[{ src: '/assets/logos/opengl.svg', alt: 'OpenGL' }]}
+                            alignment="left"
+                        />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <ImageContent
+                            images={[{ src: '/assets/logos/rust.svg', alt: 'Rust' }]}
+                            alignment="right"
+                        />
+                    </td>
+                    <td>
+                        <TextContent
+                            text="Lorem ipsum dolor sit amet vero ipsum vero..."
+                            alignment="left"
+                        />
+                    </td>
                 </tr>
                 </tbody>
             </table>
