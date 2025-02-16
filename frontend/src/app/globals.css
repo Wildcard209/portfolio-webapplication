@@ -33,14 +33,7 @@ body {
 .content {
   flex: 1;
 }
-.footer {
-  background-color: #333;
-  color: #fff;
-  text-align: center;
-  padding: 10px;
-  position: relative;
-  width: 100%;
-}
+
 .content::after {
   content: "";
   flex: auto;
@@ -117,13 +110,6 @@ body {
 .card-img, .card-img-top {
   border-top-left-radius: unset;
   border-top-right-radius: unset;
-}
-.divider {
-  border: none;
-  height: 4px;
-  background-color: black;
-  width: 90%;
-  margin: 20px auto;
 }
 
 .text-title {

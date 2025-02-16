@@ -1,5 +1,6 @@
 import HeroBanner from "@/app/components/HeroBanner/HeroBanner";
 import ProjectCard from "@/app/components/ProjectCard";
+import Divider from "@/app/components/Divider/Divider";
 import Blog from "@/app/blog/page";
 
 export default function Home() {
@@ -7,7 +8,7 @@ export default function Home() {
       <div>
           <HeroBanner />
           <ProjectCard />
-          <hr className="divider" />
+          <Divider />
           <Blog />
       </div>
   );
