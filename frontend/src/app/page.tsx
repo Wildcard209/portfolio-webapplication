@@ -1,4 +1,4 @@
-import HeroBanner from "@/app/components/HeroBanner";
+import HeroBanner from "@/app/components/HeroBanner/HeroBanner";
 import ProjectCard from "@/app/components/ProjectCard";
 import Blog from "@/app/blog/page";
 
