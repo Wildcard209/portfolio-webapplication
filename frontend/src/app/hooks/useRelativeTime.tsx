@@ -7,17 +7,23 @@ export function useRelativeTime(lastUpdated: Date): string {
         const now = new Date();
         const differenceInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
-        if (differenceInSeconds < 60) return `${differenceInSeconds} seconds ago`;
+        // Handle future dates
+        if (differenceInSeconds < 0) return "in the future";
+
+        const formatTimeUnit = (value: number, unit: string): string =>
+            `${value} ${unit}${value !== 1 ? "s" : ""} ago`;
+
+        if (differenceInSeconds < 60) return formatTimeUnit(differenceInSeconds, "second");
         const differenceInMinutes = Math.floor(differenceInSeconds / 60);
-        if (differenceInMinutes < 60) return `${differenceInMinutes} minutes ago`;
+        if (differenceInMinutes < 60) return formatTimeUnit(differenceInMinutes, "minute");
         const differenceInHours = Math.floor(differenceInMinutes / 60);
-        if (differenceInHours < 24) return `${differenceInHours} hours ago`;
+        if (differenceInHours < 24) return formatTimeUnit(differenceInHours, "hour");
         const differenceInDays = Math.floor(differenceInHours / 24);
-        if (differenceInDays < 30) return `${differenceInDays} days ago`;
+        if (differenceInDays < 30) return formatTimeUnit(differenceInDays, "day");
         const differenceInMonths = Math.floor(differenceInDays / 30);
-        if (differenceInMonths < 12) return `${differenceInMonths} months ago`;
+        if (differenceInMonths < 12) return formatTimeUnit(differenceInMonths, "month");
         const differenceInYears = Math.floor(differenceInMonths / 12);
-        return `${differenceInYears} years ago`;
+        return formatTimeUnit(differenceInYears, "year");
     };
 
     useEffect(() => {

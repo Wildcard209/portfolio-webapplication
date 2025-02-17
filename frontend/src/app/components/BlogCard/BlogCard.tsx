@@ -43,7 +43,7 @@ const BlogCard: React.FC<BlogCardProps> = ({ title, description, lastUpdated, im
                         <p className="card-text">{description}</p>
                         {isVisible && (
                             <p className="card-text">
-                                <small className="text-body-secondary">Last updated {relativeTime}</small>
+                                <small className="text-body-secondary">Uploaded {relativeTime}</small>
                             </p>
                         )}
                     </div>

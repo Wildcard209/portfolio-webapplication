@@ -37,7 +37,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ title, description, lastUpdat
                 <p className="card-text">{description}</p>
                 {isVisible && (
                     <p className="card-text">
-                        <small className="text-body-secondary">Last updated {relativeTime}</small>
+                        <small className="text-body-secondary">Uploaded {relativeTime}</small>
                     </p>
                 )}
             </div>
