@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 export function useVisibilityObserver<T extends HTMLElement>(): [boolean, React.RefObject<T | null>] {
     const [isVisible, setIsVisible] = useState<boolean>(false);

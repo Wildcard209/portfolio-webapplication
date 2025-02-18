@@ -1,6 +1,11 @@
 import Image from 'next/image';
 
-export default function ImageContent({ images, alignment }: { images: any[], alignment: string }) {
+type ImageProps = {
+    src: string;
+    alt: string;
+};
+
+export default function ImageContent({ images, alignment }: { images: ImageProps[]; alignment: 'left' | 'right' }) {
     return (
         <div className={`image-center ${alignment === 'left' ? 'image-left' : 'image-right'}`}>
             {images.map((img, index) => (
