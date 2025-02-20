@@ -60,6 +60,11 @@ func main() {
 	log.Println("Successfully connected to MinIO!")
 	log.Printf("MinIO User: %s\n", minioUser)
 
+	err = db.Close()
+	if err != nil {
+		return
+	}
+
 	http.HandleFunc("/api/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 
