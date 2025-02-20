@@ -12,8 +12,7 @@ export default function Home() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                // Call the local API route
-                const response = await fetch('/api/test'); // API route created in src/app/api/myApi/route.ts
+                const response = await fetch('/api/test');
                 const result = await response.json();
                 setData(result);
             } catch (error) {

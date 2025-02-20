@@ -1,19 +1,19 @@
-import { notFound } from "next/navigation";
+import { notFound } from 'next/navigation';
+import LoginFlow from '../components/Admin/LoginFlow';
 
-export default async function AdminPanel({ searchParams }: { searchParams: { t: string } }) {
+export default async function AdminTokenValidation({searchParams}: { searchParams: { t: string } }) {
     const validAdminToken = process.env.ADMIN_TOKEN;
+    const token = await searchParams;
 
-    const params = await searchParams;
-    const { t } = params;
-
-    if (!validAdminToken || t !== validAdminToken) {
+    if (!validAdminToken || token.t !== validAdminToken) {
         notFound();
     }
 
     return (
-        <div style={{ textAlign: "center", marginTop: "50px" }}>
-            <h1>Admin Panel</h1>
-            <p>You successfully accessed the admin panel!</p>
+        <div style={{textAlign: 'center', marginTop: '50px'}}>
+            <h1>Welcome to Admin Panel</h1>
+            <LoginFlow/>
         </div>
     );
 }
+
