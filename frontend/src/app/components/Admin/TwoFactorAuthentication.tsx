@@ -9,7 +9,7 @@ const TwoFactorAuthentication = () => {
     const handle2FA = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (code === '123456') {
+        if (code === '111111') {
             setIs2FAVerified(true);
         } else {
             alert('Invalid 2FA code. Try again!');
