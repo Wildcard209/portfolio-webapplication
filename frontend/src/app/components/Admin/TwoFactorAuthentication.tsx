@@ -18,7 +18,7 @@ const TwoFactorAuthentication = () => {
 
     if (is2FAVerified) {
         return (
-            <div style={{ textAlign: 'center', marginTop: '50px' }}>
+            <div>
                 <h2>Access Granted</h2>
                 <p>You are now authorized to access the Admin Panel!</p>
             </div>
