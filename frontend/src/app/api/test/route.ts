@@ -1,5 +1,3 @@
-process.env.API_DOMAIN
-
 import { NextResponse } from 'next/server';
 
 // Define allowed origin

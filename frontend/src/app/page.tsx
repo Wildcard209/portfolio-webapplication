@@ -7,7 +7,7 @@ import Projects from "@/app/projects/page";
 import {useEffect, useState} from "react";
 
 export default function Home() {
-    const [data, setData] = useState<any>(null);
+    const [data, setData] = useState<string>();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -24,7 +24,6 @@ export default function Home() {
     }, []);
 
     console.log(data);
-
 
     return (
       <div>
