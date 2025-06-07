@@ -33,31 +33,31 @@ const BlogCard: React.FC<BlogCardProps> = ({ title, description, lastUpdated, im
     }, []);
 
     return (
-        <div ref={cardRef} className={`card card-as-button ${styles["card-blog"]}`}>
-            <div className="row g-0 align-items-center">
-                <div className="col-md-8">
-                    <div className="card-body">
-                        <h5 className="card-title">
+        <div ref={cardRef} className={styles["card-blog"]}>
+            <div className={styles["card-container"]}>
+                <div className={styles["content-column"]}>
+                    <div className={styles["card-body"]}>
+                        <h5 className={styles["card-title"]}>
                             <strong>{title}</strong>
                         </h5>
-                        <p className="card-text">{description}</p>
+                        <p className={styles["card-text"]}>{description}</p>
                         {isVisible && (
-                            <p className="card-text">
-                                <small className="text-body-secondary">Uploaded {relativeTime}</small>
+                            <p className={styles["card-text"]}>
+                                <small className={styles["text-secondary"]}>Uploaded {relativeTime}</small>
                             </p>
                         )}
                     </div>
                 </div>
 
                 {imageId && isLargeScreen && (
-                    <div className="col-md-4 d-flex justify-content-end">
+                    <div className={styles["image-column"]}>
                         <Image
                             src={imageId}
                             loader={imageLoader}
                             alt={imageAlt}
                             width={180}
                             height={180}
-                            className={`${styles["card-image-blog"]}`}
+                            className={styles["card-image-blog"]}
                         />
                     </div>
                 )}

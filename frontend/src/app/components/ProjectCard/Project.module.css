@@ -1,3 +1,64 @@
+.card-project {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 280px;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+    box-shadow: 5px 5px #878787;
+    margin: 0 auto;
+}
+
+.card-project:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
 .card-image-project {
+    width: 100%;
+    height: 180px;
     object-fit: cover;
+    border-radius: 4px 4px 0 0;
+}
+
+.card-body-project {
+    flex: 1;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    min-height: 8rem;
+}
+
+.card-title {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: inherit;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+}
+
+.card-text {
+    margin: 0 0 1rem 0;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    color: #4a5568;
+    font-size: 0.95rem;
+}
+
+.text-secondary {
+    color: #6c757d;
+    font-size: 0.875rem;
+    margin-top: auto;
+    margin-bottom: 0;
 }

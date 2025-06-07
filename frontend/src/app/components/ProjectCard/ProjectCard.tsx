@@ -23,21 +23,21 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ title, description, lastUpdat
     const [isVisible, cardRef] = useVisibilityObserver<HTMLDivElement>();
 
     return (
-        <a  href="#" className="card card-as-button" style={{ width: '280px' }}>
+        <a href="#" className={styles["card-project"]}>
             <Image
                 src={imageId}
                 loader={imageLoader}
                 alt={imageAlt}
                 width={280}
                 height={180}
-                className={`${styles["card-image-project"]}`}
+                className={styles["card-image-project"]}
             />
-            <div ref={cardRef}  className="card-body card-body-project d-flex flex-column">
-                <h5 className="card-title"><strong>{title}</strong></h5>
-                <p className="card-text">{description}</p>
+            <div ref={cardRef} className={styles["card-body-project"]}>
+                <h5 className={styles["card-title"]}>{title}</h5>
+                <p className={styles["card-text"]}>{description}</p>
                 {isVisible && (
-                    <p className="card-text">
-                        <small className="text-body-secondary">Uploaded {relativeTime}</small>
+                    <p className={styles["text-secondary"]}>
+                        <small>Uploaded {relativeTime}</small>
                     </p>
                 )}
             </div>

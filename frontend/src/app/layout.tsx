@@ -3,7 +3,6 @@ import Navbar from "@/app/components/Navbar/Navbar";
 import Footer from "@/app/components/Footer/Footer";
 import ClientWrapper from "@/app/components/ClientWrapper";
 import localFont from "next/font/local";
-import "bootstrap/dist/css/bootstrap.min.css";
 import "./globals.css";
 
 const peanutButter = localFont({
@@ -42,9 +41,9 @@ export default function RootLayout(
         <body>
         <Navbar />
         <main className="main-content">
-            <ClientWrapper>
-                {children}
-            </ClientWrapper>
+        <ClientWrapper>
+            {children}
+        </ClientWrapper> 
         </main>
         <Footer />
         </body>

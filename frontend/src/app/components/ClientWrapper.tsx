@@ -1,8 +1,7 @@
 "use client";
 
 if (typeof window !== "undefined") {
-    // @ts-expect-error file dose exist at location
-    import("bootstrap/dist/js/bootstrap.bundle.min");
+    // Client-side code here if needed
 }
 
 const ClientWrapper: React.FC<{

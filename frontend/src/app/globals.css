@@ -13,6 +13,7 @@ body {
 }
 
 .main-content {
+  margin-top: 58px;
   flex: 1;
 }
 
