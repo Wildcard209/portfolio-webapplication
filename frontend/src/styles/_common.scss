@@ -1,39 +1,39 @@
 // Common text styles
 .text-title {
-    font-size: 55px;
-    text-align: center;
+  font-size: 55px;
+  text-align: center;
 }
 
 // Common page layout styles
 .main-content {
-    margin-top: 58px;
-    flex: 1;
-    width: 100%;
-    overflow-x: hidden;
-    position: relative;
+  margin-top: 58px;
+  flex: 1;
+  width: 100%;
+  overflow-x: hidden;
+  position: relative;
 }
 
 .content {
-    flex: 1;
-    
-    &::after {
-        content: "";
-        flex: auto;
-    }
+  flex: 1;
+
+  &::after {
+    content: "";
+    flex: auto;
+  }
 }
 
 // Common form styles
 .form-check {
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    
-    &-input {
-        margin-top: 0.8rem;
-    }
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+
+  &-input {
+    margin-top: 0.8rem;
+  }
 }
 
 // Reset Bootstrap gutter
 .row {
-    --bs-gutter-x: 0;
+  --bs-gutter-x: 0;
 }

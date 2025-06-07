@@ -1,5 +1,5 @@
-@import '../../../styles/variables';
-@import '../../../styles/mixins';
+@import "../../../styles/variables";
+@import "../../../styles/mixins";
 
 .hero-banner {
   position: relative;
@@ -13,7 +13,7 @@
 }
 
 .background-layer {
-  background-image: url('https://picsum.photos/400/340');
+  background-image: url("https://picsum.photos/400/340");
   background-size: cover;
   background-position: center;
   filter: blur(10px);

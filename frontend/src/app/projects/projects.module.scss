@@ -1,12 +1,12 @@
-@import '../../styles/variables';
-@import '../../styles/mixins';
+@import "../../styles/variables";
+@import "../../styles/mixins";
 
 .projects-grid {
   @include flex(flex-start);
   flex-wrap: wrap;
   gap: $spacing-md;
   padding: $spacing-sm;
-  max-width: 1300px;  /* Increased to fit 4 cards (280px * 4 + gaps) */
+  max-width: 1300px; /* Increased to fit 4 cards (280px * 4 + gaps) */
   margin: 0 auto;
 }
 

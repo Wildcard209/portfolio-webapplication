@@ -1,14 +1,13 @@
 "use client";
 
 if (typeof window !== "undefined") {
-    // Client-side code here if needed
+  // Client-side code here if needed
 }
 
 const ClientWrapper: React.FC<{
-    children: React.ReactNode;
+  children: React.ReactNode;
 }> = ({ children }) => {
-    return <>{children}</>;
+  return <>{children}</>;
 };
 
 export default ClientWrapper;
-
