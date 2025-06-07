@@ -1,8 +1,14 @@
 .hero-banner {
     position: relative;
     height: 340px;
-    overflow: hidden;
-    margin-top: 0;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    width: 100vw;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
     margin-bottom: 50px;
 }
 
