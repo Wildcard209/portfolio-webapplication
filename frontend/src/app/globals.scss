@@ -1,0 +1,60 @@
+@import '../styles/variables';
+@import '../styles/mixins';
+@import '../styles/common';
+
+.fancy-font {
+  font-family: $font-family-fancy;
+  font-weight: 10;
+  font-size: xx-large;
+}
+
+html,
+body {
+  font-family: $font-family-base;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  @include flex(flex-start, stretch, column);
+}
+
+.main-content {
+  margin-top: 58px;
+  flex: 1;
+  width: 100%;
+  overflow-x: hidden;
+  position: relative;
+}
+
+.content {
+  flex: 1;
+
+  &::after {
+    content: "";
+    flex: auto;
+  }
+}
+
+.background-column {
+  background-color: #f8f9fa;
+}
+
+.custom-control {
+  &-label {
+    padding-right: $spacing-lg;
+
+    &:before,
+    &:after {
+      left: unset;
+      right: 0;
+    }
+
+    &:after {
+      right: 1.5rem;
+    }
+  }
+}

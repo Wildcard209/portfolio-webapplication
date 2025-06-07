@@ -1,0 +1,11 @@
+@import '../../../styles/variables';
+@import '../../../styles/mixins';
+
+.footer {
+  background-color: $primary-color;
+  color: $white;
+  text-align: center;
+  padding: $spacing-xs;
+  position: relative;
+  width: 100%;
+}

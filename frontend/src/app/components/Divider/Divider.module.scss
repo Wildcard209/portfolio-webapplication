@@ -1,0 +1,10 @@
+@import '../../../styles/variables';
+@import '../../../styles/mixins';
+
+.divider {
+  border: none;
+  height: 4px;
+  background-color: $text-color;
+  width: 90%;
+  margin: $spacing-md auto;
+}

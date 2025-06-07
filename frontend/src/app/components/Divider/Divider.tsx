@@ -1,4 +1,4 @@
-import styles from "./Divider.module.css";
+import styles from "./Divider.module.scss";
 
 export default function Divider() {
     return (

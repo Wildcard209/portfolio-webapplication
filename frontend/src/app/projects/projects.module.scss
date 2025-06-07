@@ -1,0 +1,45 @@
+@import '../../styles/variables';
+@import '../../styles/mixins';
+
+.projects-grid {
+  @include flex(flex-start);
+  flex-wrap: wrap;
+  gap: $spacing-md;
+  padding: $spacing-sm;
+  max-width: 1300px;  /* Increased to fit 4 cards (280px * 4 + gaps) */
+  margin: 0 auto;
+}
+
+.project-card {
+  flex: 0 0 280px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: transform 0.2s;
+
+  &:hover {
+    transform: translateY(-4px);
+  }
+}
+
+.project-image {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+}
+
+.project-content {
+  padding: $spacing-sm;
+}
+
+.project-title {
+  font-size: $font-size-lg;
+  font-weight: 600;
+  margin: 0 0 $spacing-xs 0;
+}
+
+.project-description {
+  font-size: $font-size-base;
+  color: #555;
+  margin: 0;
+}

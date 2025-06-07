@@ -1,0 +1,140 @@
+@import '../../../styles/variables';
+@import '../../../styles/mixins';
+
+.card-blog {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  width: calc(100% - 20px);
+  max-width: 900px;
+  background-color: $white;
+  background-clip: border-box;
+  border: 1px solid #dee2e6;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  margin: $spacing-xs auto;
+  box-shadow: 5px 5px #878787;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  @include desktop-lg {
+    margin: $spacing-xs auto;
+    width: calc(100% - 20px);
+    max-width: calc(900px - 20px);
+  }
+
+  @include tablet {
+    flex-direction: row;
+    margin: $spacing-xs auto;
+    width: calc(100% - 20px);
+  }
+}
+
+.card-container {
+  display: flex;
+  width: 100%;
+  align-items: stretch;
+
+  @include tablet {
+    flex-direction: row;
+  }
+}
+
+.content-column {
+  flex: 1;
+  padding-left: $spacing-sm;
+  @include flex(space-between, stretch, column);
+
+  @include tablet {
+    width: 100%;
+    padding: 0.75rem;
+  }
+}
+
+.image-column {
+  width: 180px;
+  min-width: 180px;
+  padding: 0.75rem;
+  @include flex(center, center);
+}
+
+.card-title {
+  margin-bottom: $spacing-xs;
+  margin-top: $spacing-xs;
+  font-size: $font-size-lg;
+  font-weight: 600;
+  color: inherit;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+.card-text {
+  margin-bottom: $spacing-sm;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  color: #4a5568;
+}
+
+.text-secondary {
+  color: #6c757d;
+  font-size: 0.875rem;
+  margin-top: auto;
+}
+
+.card-image-blog {
+  width: 100%;
+  height: 140px;
+  border-radius: 4px;
+  object-fit: cover;
+}
+
+.card {
+  width: 18rem;
+  height: auto;
+  box-shadow: 5px 5px #878787;
+
+  &-body {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &-text {
+    overflow: hidden;
+    display: -webkit-box;
+    display: box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    box-orient: vertical;
+    text-overflow: ellipsis;
+    white-space: normal;
+  }
+
+  &-as-button {
+    text-decoration: none;
+    cursor: pointer;
+    color: var(--bs-body-color);
+    transition: transform 0.2s ease;
+    border-radius: 0;
+    margin: 10px;
+
+    &:hover {
+      transform: scale(1.05);
+    }
+  }
+
+  &-img,
+  &-img-top {
+    border-top-left-radius: unset;
+    border-top-right-radius: unset;
+  }
+}

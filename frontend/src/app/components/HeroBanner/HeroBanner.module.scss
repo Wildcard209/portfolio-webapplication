@@ -1,0 +1,47 @@
+@import '../../../styles/variables';
+@import '../../../styles/mixins';
+
+.hero-banner {
+  position: relative;
+  height: 340px;
+  margin: 0 -50vw 50px -50vw;
+  padding: 0;
+  text-align: center;
+  width: 100vw;
+  left: 50%;
+  right: 50%;
+}
+
+.background-layer {
+  background-image: url('https://picsum.photos/400/340');
+  background-size: cover;
+  background-position: center;
+  filter: blur(10px);
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -1;
+}
+
+.banner-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: $white;
+  z-index: 1;
+
+  h1 {
+    font-size: 4em;
+  }
+
+  p {
+    font-size: 2em;
+  }
+}
+
+.banner-text-large {
+  font-size: 80px;
+}

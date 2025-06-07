@@ -1,7 +1,7 @@
 'use client';
 
 import ProjectCard from "../ProjectCard/ProjectCard";
-import styles from "./ProjectContainer.module.css";
+import styles from "./ProjectContainer.module.scss";
 
 export type ProjectData = {
     title: string;

@@ -34,9 +34,13 @@ const projectsData: ProjectData[] = [
 
 export default function Projects() {
     return (
-        <div>
-            <h1 className="fancy-font text-title">Most Recent Projects</h1>
-            <ProjectContainer projects={projectsData} />
+        <div className="container mt-4">
+            <h1 className="fancy-font text-title text-center mb-4">Most Recent Projects</h1>
+            <div className="d-flex justify-content-center">
+                <div className="col-md-10">
+                    <ProjectContainer projects={projectsData} />
+                </div>
+            </div>
         </div>
     );
 }

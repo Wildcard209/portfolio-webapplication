@@ -1,6 +1,6 @@
 'use client';
 
-import styles from "./BlogCard.module.css"
+import styles from "./BlogCard.module.scss"
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRelativeTime } from "../../hooks/useRelativeTime";

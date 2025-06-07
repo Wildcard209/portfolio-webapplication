@@ -3,7 +3,7 @@ import Navbar from "@/app/components/Navbar/Navbar";
 import Footer from "@/app/components/Footer/Footer";
 import ClientWrapper from "@/app/components/ClientWrapper";
 import localFont from "next/font/local";
-import "./globals.css";
+import "./globals.scss";
 
 const peanutButter = localFont({
     src: [{ path: "./fonts/Peanut Butter/Peanut-Butter.woff2" }],

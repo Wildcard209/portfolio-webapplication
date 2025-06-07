@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useRelativeTime } from "../../hooks/useRelativeTime";
 import { useVisibilityObserver } from "../../hooks/useVisibilityObserver";
-import styles from "./Project.module.css";
+import styles from "./Project.module.scss";
 import React from "react";
 
 type ProjectCardProps = {

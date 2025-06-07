@@ -1,17 +1,18 @@
 import { NextResponse } from 'next/server';
 
 // Define allowed origin
-const ALLOWED_ORIGIN = process.env.API_DOMAIN ?? "";
+const ALLOWED_ORIGIN = process.env.API_DOMAIN ?? "http://localhost:3000";
 
 export async function GET(request: Request) {
-    const origin = request.headers.get('origin');
-
-    if (origin !== ALLOWED_ORIGIN) {
+    const origin = request.headers.get('origin') || "http://localhost:3000";
+    
+    // Allow requests from specified origin
+    if (origin !== ALLOWED_ORIGIN && origin !== "http://localhost:3000") {
         return new NextResponse(JSON.stringify({ error: 'Not allowed by CORS' }), {
             status: 403,
             headers: {
                 'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
+                'Access-Control-Allow-Origin': origin,
             },
         });
     }

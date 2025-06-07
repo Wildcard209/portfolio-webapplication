@@ -1,0 +1,11 @@
+@import '../../../styles/variables';
+@import '../../../styles/mixins';
+
+.projects-grid {
+  @include flex(flex-start);
+  flex-wrap: wrap;
+  gap: $spacing-md;
+  padding: $spacing-sm;
+  max-width: 1300px;
+  margin: 0 auto;
+}

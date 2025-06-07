@@ -1,0 +1,107 @@
+@import '../../../styles/variables';
+@import '../../../styles/mixins';
+
+.card-project {
+  position: relative;
+  @include flex(flex-start, stretch, column);
+  width: 280px;
+  background-color: $white;
+  border: 1px solid #dee2e6;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  box-shadow: 5px 5px #878787;
+  margin: 0 auto;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.card-image-project {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 4px 4px 0 0;
+}
+
+.card-body-project {
+  flex: 1;
+  padding: $spacing-sm;
+  @include flex(flex-start, stretch, column);
+  min-height: 8rem;
+}
+
+.card-title {
+  margin: 0 0 $spacing-xs 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: inherit;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+.card-text {
+  margin: 0 0 $spacing-sm 0;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  color: #4a5568;
+  font-size: 0.95rem;
+}
+
+.text-secondary {
+  color: #6c757d;
+  font-size: 0.875rem;
+  margin-top: auto;
+  margin-bottom: 0;
+}
+
+.card {
+  width: 18rem;
+  height: auto;
+  box-shadow: 5px 5px #878787;
+
+  &-body {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &-text {
+    overflow: hidden;
+    display: -webkit-box;
+    display: box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    box-orient: vertical;
+    text-overflow: ellipsis;
+    white-space: normal;
+  }
+
+  &-as-button {
+    text-decoration: none;
+    cursor: pointer;
+    color: var(--bs-body-color);
+    transition: transform 0.2s ease;
+    border-radius: 0;
+    margin: 10px;
+
+    &:hover {
+      transform: scale(1.05);
+    }
+  }
+
+  &-img,
+  &-img-top {
+    border-top-left-radius: unset;
+    border-top-right-radius: unset;
+  }
+}
