@@ -1,11 +1,11 @@
-@import "../../../styles/variables";
-@import "../../../styles/mixins";
+@use "../../../styles/variables" as v;
+@use "../../../styles/mixins" as m;
 
 .card-project {
   position: relative;
-  @include flex(flex-start, stretch, column);
+  @include m.flex(flex-start, stretch, column);
   width: 280px;
-  background-color: $white;
+  background-color: v.$white;
   border: 1px solid #dee2e6;
   transition: all 0.2s ease;
   cursor: pointer;
@@ -29,13 +29,13 @@
 
 .card-body-project {
   flex: 1;
-  padding: $spacing-sm;
-  @include flex(flex-start, stretch, column);
+  padding: v.$spacing-sm;
+  @include m.flex(flex-start, stretch, column);
   min-height: 8rem;
 }
 
 .card-title {
-  margin: 0 0 $spacing-xs 0;
+  margin: 0 0 v.$spacing-xs 0;
   font-size: 1.25rem;
   font-weight: 600;
   color: inherit;
@@ -47,7 +47,7 @@
 }
 
 .card-text {
-  margin: 0 0 $spacing-sm 0;
+  margin: 0 0 v.$spacing-sm 0;
   display: -webkit-box;
   -webkit-box-orient: vertical;
   overflow: hidden;

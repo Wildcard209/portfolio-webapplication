@@ -1,5 +1,5 @@
-@import "../../../styles/variables";
-@import "../../../styles/mixins";
+@use "../../../styles/variables" as v;
+@use "../../../styles/mixins" as m;
 
 .hero-banner {
   position: relative;
@@ -30,7 +30,7 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  color: $white;
+  color: v.$white;
   z-index: 1;
 
   h1 {

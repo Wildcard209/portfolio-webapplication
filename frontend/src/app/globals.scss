@@ -1,16 +1,16 @@
-@import "../styles/variables";
-@import "../styles/mixins";
-@import "../styles/common";
+@use "../styles/variables" as v;
+@use "../styles/mixins" as m;
+@forward "../styles/common";
 
 .fancy-font {
-  font-family: $font-family-fancy;
+  font-family: v.$font-family-fancy;
   font-weight: 10;
   font-size: xx-large;
 }
 
 html,
 body {
-  font-family: $font-family-base;
+  font-family: v.$font-family-base;
   margin: 0;
   padding: 0;
   height: 100%;
@@ -19,7 +19,7 @@ body {
 }
 
 body {
-  @include flex(flex-start, stretch, column);
+  @include m.flex(flex-start, stretch, column);
 }
 
 .main-content {
@@ -45,7 +45,7 @@ body {
 
 .custom-control {
   &-label {
-    padding-right: $spacing-lg;
+    padding-right: v.$spacing-lg;
 
     &:before,
     &:after {

@@ -1,3 +1,5 @@
+@use 'variables' as v;
+
 @mixin flex($justify: flex-start, $align: stretch, $direction: row) {
   display: flex;
   justify-content: $justify;
@@ -6,31 +8,31 @@
 }
 
 @mixin mobile-sm {
-  @media screen and (max-width: $mobile-sm) {
+  @media screen and (max-width: v.$mobile-sm) {
     @content;
   }
 }
 
 @mixin mobile {
-  @media screen and (max-width: $mobile) {
+  @media screen and (max-width: v.$mobile) {
     @content;
   }
 }
 
 @mixin tablet {
-  @media screen and (max-width: $tablet) {
+  @media screen and (max-width: v.$tablet) {
     @content;
   }
 }
 
 @mixin desktop {
-  @media screen and (max-width: $desktop) {
+  @media screen and (max-width: v.$desktop) {
     @content;
   }
 }
 
 @mixin desktop-lg {
-  @media screen and (max-width: $desktop-lg) {
+  @media screen and (max-width: v.$desktop-lg) {
     @content;
   }
 }

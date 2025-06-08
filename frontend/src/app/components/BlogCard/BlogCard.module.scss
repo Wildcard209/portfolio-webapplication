@@ -1,5 +1,5 @@
-@import "../../../styles/variables";
-@import "../../../styles/mixins";
+@use "../../../styles/variables" as v;
+@use "../../../styles/mixins" as m;
 
 .card-blog {
   position: relative;
@@ -7,12 +7,12 @@
   min-width: 0;
   width: calc(100% - 20px);
   max-width: 900px;
-  background-color: $white;
+  background-color: v.$white;
   background-clip: border-box;
   border: 1px solid #dee2e6;
   transition: all 0.2s ease;
   cursor: pointer;
-  margin: $spacing-xs auto;
+  margin: v.$spacing-xs auto;
   box-shadow: 5px 5px #878787;
 
   &:hover {
@@ -20,15 +20,15 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
   }
 
-  @include desktop-lg {
-    margin: $spacing-xs auto;
+  @include m.desktop-lg {
+    margin: v.$spacing-xs auto;
     width: calc(100% - 20px);
     max-width: calc(900px - 20px);
   }
 
-  @include tablet {
+  @include m.tablet {
     flex-direction: row;
-    margin: $spacing-xs auto;
+    margin: v.$spacing-xs auto;
     width: calc(100% - 20px);
   }
 }
@@ -38,17 +38,17 @@
   width: 100%;
   align-items: stretch;
 
-  @include tablet {
+  @include m.tablet {
     flex-direction: row;
   }
 }
 
 .content-column {
   flex: 1;
-  padding-left: $spacing-sm;
-  @include flex(space-between, stretch, column);
+  padding-left: v.$spacing-sm;
+  @include m.flex(space-between, stretch, column);
 
-  @include tablet {
+  @include m.tablet {
     width: 100%;
     padding: 0.75rem;
   }
@@ -58,13 +58,13 @@
   width: 180px;
   min-width: 180px;
   padding: 0.75rem;
-  @include flex(center, center);
+  @include m.flex(center, center);
 }
 
 .card-title {
-  margin-bottom: $spacing-xs;
-  margin-top: $spacing-xs;
-  font-size: $font-size-lg;
+  margin-bottom: v.$spacing-xs;
+  margin-top: v.$spacing-xs;
+  font-size: v.$font-size-lg;
   font-weight: 600;
   color: inherit;
   display: -webkit-box;
@@ -75,7 +75,7 @@
 }
 
 .card-text {
-  margin-bottom: $spacing-sm;
+  margin-bottom: v.$spacing-sm;
   display: -webkit-box;
   -webkit-box-orient: vertical;
   overflow: hidden;
