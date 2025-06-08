@@ -7,7 +7,8 @@ const nextConfig: NextConfig = {
 module.exports = {
   reactStrictMode: true,
   env: {
-    API_BASE_URL: "http://localhost:8080/api",
+    NEXT_PUBLIC_BASE_API_URL: process.env.BASE_API_URL,
+    NEXT_PUBLIC_ALLOWED_ORIGIN: process.env.ALLOWED_ORIGIN,
   },
 };
 

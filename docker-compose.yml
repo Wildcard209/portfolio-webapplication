@@ -5,6 +5,8 @@ services:
       dockerfile: Dockerfile
     environment:
       - ADMIN_TOKEN=${ADMIN_TOKEN}
+      - BASE_API_URL=${BASE_API_URL}
+      - ALLOWED_ORIGIN=${ALLOWED_ORIGIN}
     volumes:
       - ./frontend:/app
       - /app/node_modules
