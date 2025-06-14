@@ -1,4 +1,3 @@
--- Create login_attempts table
 CREATE TABLE IF NOT EXISTS login_attempts (
     id SERIAL PRIMARY KEY,
     ip_address INET NOT NULL,
@@ -8,7 +7,6 @@ CREATE TABLE IF NOT EXISTS login_attempts (
     details TEXT
 );
 
--- Create indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_login_attempts_ip_address ON login_attempts(ip_address);
 CREATE INDEX IF NOT EXISTS idx_login_attempts_attempt_at ON login_attempts(attempt_at);
 CREATE INDEX IF NOT EXISTS idx_login_attempts_success ON login_attempts(success);

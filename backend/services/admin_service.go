@@ -70,7 +70,6 @@ func (s *AdminService) createDefaultAdmin() error {
 		return fmt.Errorf("ADMIN_USER and ADMIN_PASSWORD environment variables are required")
 	}
 
-	// Generate salt and hash password
 	salt, err := s.authService.GenerateSalt()
 	if err != nil {
 		return fmt.Errorf("failed to generate salt: %w", err)

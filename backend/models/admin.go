@@ -9,7 +9,7 @@ type Admin struct {
 	ID              int       `json:"id" db:"id"`
 	Username        string    `json:"username" db:"username"`
 	PasswordHash    string    `json:"-" db:"password_hash"`
-	PasswordSalt    string    `json:"-" db:"password_salt"` // Never expose salt in JSON
+	PasswordSalt    string    `json:"-" db:"password_salt"`
 	LastLogin       NullTime  `json:"last_login" db:"last_login"`
 	CurrentToken    *string   `json:"-" db:"current_token"`
 	TokenExpiration NullTime  `json:"-" db:"token_expiration"`
@@ -65,13 +65,11 @@ type AdminUser struct {
 	LastLogin NullTime `json:"last_login"`
 }
 
-// ErrorResponse represents an error response
 type ErrorResponse struct {
 	Error   string `json:"error" example:"Invalid credentials"`
 	Message string `json:"message,omitempty" example:"Username or password is incorrect"`
 }
 
-// SuccessResponse represents a successful operation response
 type SuccessResponse struct {
 	Message string `json:"message" example:"Operation completed successfully"`
 }

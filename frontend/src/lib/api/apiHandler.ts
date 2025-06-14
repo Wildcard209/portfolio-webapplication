@@ -17,7 +17,6 @@ const allowedOrigin = process.env.NEXT_PUBLIC_ALLOWED_ORIGIN ?? '';
 
 export class ApiHandler {
   private static getDefaultHeaders(): HeadersInit {
-    // Import AuthService dynamically to avoid circular dependencies
     let authHeaders = {};
     if (typeof window !== 'undefined') {
       const token = localStorage.getItem('auth_token');

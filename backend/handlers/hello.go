@@ -6,7 +6,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// HelloResponse represents the response structure for hello endpoint
 type HelloResponse struct {
 	Message string `json:"message" example:"Hello from Go backend 2!"`
 }

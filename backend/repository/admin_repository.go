@@ -17,7 +17,6 @@ type AdminRepository struct {
 func NewAdminRepository(db *sql.DB) *AdminRepository {
 	queryLoader, err := database.NewQueryLoader()
 	if err != nil {
-		// Log error but don't fail - fallback to inline queries if needed
 		fmt.Printf("Warning: Failed to load queries: %v\n", err)
 	}
 
@@ -48,7 +47,7 @@ func (r *AdminRepository) GetAdminByUsername(username string) (*models.Admin, er
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, nil // No admin found
+			return nil, nil
 		}
 		return nil, fmt.Errorf("failed to get admin by username: %w", err)
 	}
@@ -78,7 +77,7 @@ func (r *AdminRepository) GetAdminByID(id int) (*models.Admin, error) {
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, nil // No admin found
+			return nil, nil
 		}
 		return nil, fmt.Errorf("failed to get admin by ID: %w", err)
 	}

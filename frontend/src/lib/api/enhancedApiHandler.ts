@@ -6,7 +6,7 @@ type FetchOptions = {
     revalidate?: number;
     tags?: string[];
   };
-  requireAuth?: boolean; // Whether this endpoint requires authentication
+  requireAuth?: boolean;
 };
 
 type ApiResponse<T> = {
@@ -24,13 +24,11 @@ export class EnhancedApiHandler {
       'Accept': 'application/json',
     };
 
-    // Always include auth token if available (as requested by user)
     if (typeof window !== 'undefined') {
       const token = AuthService.getToken();
       if (token) {
         headers['Authorization'] = `Bearer ${token}`;
       } else if (requireAuth) {
-        // If auth is required but no token, this will fail
         console.warn('Authentication required but no token found');
       }
     }
@@ -53,20 +51,17 @@ export class EnhancedApiHandler {
         },
       });
 
-      // Handle different response types
       let data = null;
       const contentType = response.headers.get('content-type');
       
       if (contentType && contentType.includes('application/json')) {
         data = await response.json();
       } else {
-        // For non-JSON responses, get text
         const text = await response.text();
         data = text ? { message: text } : null;
       }
 
       if (!response.ok) {
-        // If it's an auth error, might want to clear tokens
         if (response.status === 401) {
           AuthService.clearAuthData();
         }
@@ -140,7 +135,6 @@ export class EnhancedApiHandler {
     });
   }
 
-  // Convenience method for authenticated requests
   static async authenticatedRequest<T>(
     method: 'GET' | 'POST' | 'PUT' | 'DELETE',
     endpoint: string,

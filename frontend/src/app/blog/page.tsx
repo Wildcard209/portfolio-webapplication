@@ -15,8 +15,6 @@ export default function Blog() {
     <div className="container mt-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h1 className="fancy-font text-title text-center flex-grow-1">Latest Blogs</h1>
-        
-        {/* Add Blog button - only show if authenticated */}
         {!loading && isAuthenticated && (
           <button
             onClick={handleAddBlog}

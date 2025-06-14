@@ -8,7 +8,7 @@ import { useApi } from "@/lib/api/hooks/useApi";
 
 export default function Home() {
   const { data, error, isLoading } = useApi<{ message?: string }>('/test', {
-    revalidateTime: 60 // revalidate every minute
+    revalidateTime: 60 
   });
 
   if (isLoading) {

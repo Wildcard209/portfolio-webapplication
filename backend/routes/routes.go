@@ -15,7 +15,6 @@ import (
 )
 
 func SetupRoutes(r *gin.Engine, cfg *config.Config, authService *auth.AuthService) {
-	// Add basic CORS for development
 	r.Use(func(c *gin.Context) {
 		c.Header("Access-Control-Allow-Origin", "*")
 		c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
@@ -34,7 +33,6 @@ func SetupRoutes(r *gin.Engine, cfg *config.Config, authService *auth.AuthServic
 	{
 		api.GET("/test", handlers.Hello)
 
-		// Configure Swagger without explicit URL to use relative paths
 		api.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 		if cfg.DB != nil {

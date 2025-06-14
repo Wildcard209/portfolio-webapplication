@@ -19,7 +19,6 @@ export const useAuth = (): UseAuthReturn => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check authentication state on mount
     const checkAuth = () => {
       const authenticated = AuthService.isAuthenticated();
       const currentUser = AuthService.getUser();
@@ -33,8 +32,7 @@ export const useAuth = (): UseAuthReturn => {
 
     checkAuth();
 
-    // Optional: Set up an interval to periodically check token validity
-    const interval = setInterval(checkAuth, 60000); // Check every minute
+    const interval = setInterval(checkAuth, 60000);
 
     return () => clearInterval(interval);
   }, []);

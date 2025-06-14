@@ -20,7 +20,6 @@ type AuthService struct {
 }
 
 func NewAuthService(jwtSecret string, tokenExpiry time.Duration) *AuthService {
-	// Get pepper from environment or use default for development
 	pepper := os.Getenv("PASSWORD_PEPPER")
 	if pepper == "" {
 		pepper = "default-pepper-change-in-production"
@@ -39,7 +38,6 @@ type CustomClaims struct {
 	jwt.RegisteredClaims
 }
 
-// GenerateSalt generates a random salt for password hashing
 func (s *AuthService) GenerateSalt() (string, error) {
 	salt := make([]byte, 32)
 	_, err := rand.Read(salt)
@@ -49,19 +47,15 @@ func (s *AuthService) GenerateSalt() (string, error) {
 	return base64.StdEncoding.EncodeToString(salt), nil
 }
 
-// HashPasswordWithSalt hashes a password with salt and pepper using a secure method
 func (s *AuthService) HashPasswordWithSalt(password, salt string) (string, error) {
 	// Use SHA-256 to hash the combined password+salt+pepper to ensure it's always under bcrypt's 72-byte limit
-	// This is a common pattern for handling long passwords/salts with bcrypt
 	hasher := sha256.New()
 	hasher.Write([]byte(password))
 	hasher.Write([]byte(salt))
 	hasher.Write([]byte(s.pepper))
 
-	// Get the SHA-256 hash and encode it as base64 for consistent length
 	hashedInput := base64.StdEncoding.EncodeToString(hasher.Sum(nil))
 
-	// Now use bcrypt on the pre-hashed input (which is always 44 bytes in base64)
 	hashedBytes, err := bcrypt.GenerateFromPassword([]byte(hashedInput), bcrypt.DefaultCost)
 	if err != nil {
 		return "", fmt.Errorf("failed to hash password: %w", err)
@@ -69,7 +63,6 @@ func (s *AuthService) HashPasswordWithSalt(password, salt string) (string, error
 	return string(hashedBytes), nil
 }
 
-// HashPassword generates salt and hashes password (for backward compatibility)
 func (s *AuthService) HashPassword(password string) (string, error) {
 	salt, err := s.GenerateSalt()
 	if err != nil {
@@ -78,22 +71,17 @@ func (s *AuthService) HashPassword(password string) (string, error) {
 	return s.HashPasswordWithSalt(password, salt)
 }
 
-// VerifyPassword verifies a password against its hash using salt and pepper
 func (s *AuthService) VerifyPassword(hashedPassword, password, salt string) error {
-	// Use the same SHA-256 pre-hashing method as in HashPasswordWithSalt
 	hasher := sha256.New()
 	hasher.Write([]byte(password))
 	hasher.Write([]byte(salt))
 	hasher.Write([]byte(s.pepper))
 
-	// Get the SHA-256 hash and encode it as base64
 	hashedInput := base64.StdEncoding.EncodeToString(hasher.Sum(nil))
 
-	// Compare with bcrypt
 	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(hashedInput))
 }
 
-// GenerateToken generates a JWT token for the user
 func (s *AuthService) GenerateToken(userID int, username string) (string, time.Time, error) {
 	expirationTime := time.Now().Add(s.tokenExpiry)
 

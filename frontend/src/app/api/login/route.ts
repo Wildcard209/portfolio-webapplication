@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 
-// Define allowed origin
 const ALLOWED_ORIGIN = process.env.API_DOMAIN ?? "";
 
 export async function GET(request: Request) {

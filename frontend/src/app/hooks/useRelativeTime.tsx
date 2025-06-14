@@ -9,7 +9,6 @@ export function useRelativeTime(lastUpdated: Date): string {
       (now.getTime() - date.getTime()) / 1000,
     );
 
-    // Handle future dates
     if (differenceInSeconds < 0) return "in the future";
 
     const formatTimeUnit = (value: number, unit: string): string =>

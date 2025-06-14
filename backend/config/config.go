@@ -12,44 +12,35 @@ import (
 	"github.com/minio/minio-go/v7/pkg/credentials"
 )
 
-// Config holds all configuration for our application
 type Config struct {
 	DB          *sql.DB
 	MinioClient *minio.Client
 	Port        string
 }
 
-// NewConfig creates a new configuration instance
 func NewConfig() (*Config, error) {
-	// Load environment variables
 	err := godotenv.Load("/app/.env")
 	if err != nil {
 		log.Printf("Warning: Error loading .env file: %v", err)
-		// Don't fail here, as environment variables might be set externally
 	}
 
 	config := &Config{
 		Port: getEnv("PORT", "8080"),
 	}
 
-	// Check if we're in test mode (skip database connections)
 	if os.Getenv("TEST_MODE") == "true" {
 		log.Println("Running in test mode - skipping database connections")
 		return config, nil
 	}
 
-	// Initialize database connection
 	config.DB, err = initDB()
 	if err != nil {
 		log.Printf("Warning: Failed to initialize database: %v", err)
-		// Continue without database for now
 	}
 
-	// Initialize MinIO client
 	config.MinioClient, err = initMinio()
 	if err != nil {
 		log.Printf("Warning: Failed to initialize MinIO: %v", err)
-		// Continue without MinIO for now
 	}
 
 	return config, nil
@@ -59,7 +50,7 @@ func initDB() (*sql.DB, error) {
 	dbUser := os.Getenv("POSTGRES_USER")
 	dbPassword := os.Getenv("POSTGRES_PASSWORD")
 	dbName := os.Getenv("POSTGRES_DB")
-	dbHost := getEnv("POSTGRES_HOST", "db") // Docker Compose service name for PostgreSQL
+	dbHost := getEnv("POSTGRES_HOST", "db")
 	dbPort := getEnv("POSTGRES_PORT", "5432")
 
 	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", dbUser, dbPassword, dbHost, dbPort, dbName)
@@ -85,7 +76,7 @@ func initMinio() (*minio.Client, error) {
 
 	minioClient, err := minio.New(minioEndpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(minioUser, minioPassword, ""),
-		Secure: false, // Use true if MinIO supports HTTPS
+		Secure: false,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to create MinIO client: %w", err)
@@ -103,7 +94,6 @@ func getEnv(key, defaultValue string) string {
 	return defaultValue
 }
 
-// Close closes all connections
 func (c *Config) Close() error {
 	if c.DB != nil {
 		return c.DB.Close()

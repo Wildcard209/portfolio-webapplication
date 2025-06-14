@@ -28,7 +28,6 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${roboto.variable} ${peanutButter.variable}`}>
       <head>
-        {/* Favicon Links */}
         <link
           rel="icon"
           type="image/png"
