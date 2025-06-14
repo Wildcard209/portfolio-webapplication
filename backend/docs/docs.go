@@ -23,7 +23,30 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/{adminToken}/admin/login": {
+        "/test": {
+            "get": {
+                "description": "Returns a greeting message from the Go backend with hot reload support",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "hello"
+                ],
+                "summary": "Hello endpoint for testing",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HelloResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/{adminToken}/admin/login": {
             "post": {
                 "description": "Authenticate admin user and return JWT token",
                 "consumes": [
@@ -88,7 +111,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/{adminToken}/admin/logout": {
+        "/{adminToken}/admin/logout": {
             "post": {
                 "security": [
                     {
@@ -129,29 +152,6 @@ const docTemplate = `{
                         "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/test": {
-            "get": {
-                "description": "Returns a greeting message from the Go backend with hot reload support",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "hello"
-                ],
-                "summary": "Hello endpoint for testing",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.HelloResponse"
                         }
                     }
                 }
@@ -250,6 +250,14 @@ const docTemplate = `{
                 }
             }
         }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "description": "Type \"Bearer\" followed by a space and JWT token.",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
     }
 }`
 
@@ -257,7 +265,7 @@ const docTemplate = `{
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
 	Host:             "localhost",
-	BasePath:         "/",
+	BasePath:         "/api",
 	Schemes:          []string{"http"},
 	Title:            "Portfolio Web Application API",
 	Description:      "This is a RESTful API for the portfolio web application",

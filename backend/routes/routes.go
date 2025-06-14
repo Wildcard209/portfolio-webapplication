@@ -56,10 +56,10 @@ func setupAdminRoutes(api *gin.RouterGroup, cfg *config.Config, authService *aut
 
 	adminGroup := api.Group("/:adminToken/admin")
 	adminGroup.Use(middleware.AdminTokenValidationMiddleware(adminToken))
-	adminGroup.Use(middleware.ValidateContentTypeMiddleware())
 	{
 		adminGroup.POST("/login",
 			middleware.RateLimitMiddleware(handlers.GetRateLimiterForLogin()),
+			middleware.ValidateContentTypeMiddleware(),
 			adminHandler.Login,
 		)
 

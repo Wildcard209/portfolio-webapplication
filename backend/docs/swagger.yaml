@@ -1,4 +1,4 @@
-basePath: /
+basePath: /api
 definitions:
   handlers.HelloResponse:
     properties:
@@ -75,7 +75,7 @@ info:
   title: Portfolio Web Application API
   version: "1.0"
 paths:
-  /api/{adminToken}/admin/login:
+  /{adminToken}/admin/login:
     post:
       consumes:
       - application/json
@@ -118,7 +118,7 @@ paths:
       summary: Admin login
       tags:
       - admin
-  /api/{adminToken}/admin/logout:
+  /{adminToken}/admin/logout:
     post:
       description: Invalidate current admin session
       parameters:
@@ -165,4 +165,10 @@ paths:
       - hello
 schemes:
 - http
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

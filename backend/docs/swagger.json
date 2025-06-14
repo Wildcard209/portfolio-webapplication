@@ -18,9 +18,32 @@
         "version": "1.0"
     },
     "host": "localhost",
-    "basePath": "/",
+    "basePath": "/api",
     "paths": {
-        "/api/{adminToken}/admin/login": {
+        "/test": {
+            "get": {
+                "description": "Returns a greeting message from the Go backend with hot reload support",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "hello"
+                ],
+                "summary": "Hello endpoint for testing",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.HelloResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/{adminToken}/admin/login": {
             "post": {
                 "description": "Authenticate admin user and return JWT token",
                 "consumes": [
@@ -85,7 +108,7 @@
                 }
             }
         },
-        "/api/{adminToken}/admin/logout": {
+        "/{adminToken}/admin/logout": {
             "post": {
                 "security": [
                     {
@@ -126,29 +149,6 @@
                         "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/test": {
-            "get": {
-                "description": "Returns a greeting message from the Go backend with hot reload support",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "hello"
-                ],
-                "summary": "Hello endpoint for testing",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.HelloResponse"
                         }
                     }
                 }
@@ -246,6 +246,14 @@
                     "example": "Operation completed successfully"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "description": "Type \"Bearer\" followed by a space and JWT token.",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }
