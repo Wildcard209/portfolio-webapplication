@@ -16,8 +16,8 @@ export default async function AdminTokenValidation({
   }
 
   return (
-    <div style={{ textAlign: "center", marginTop: "50px" }}>
-      <LoginFlow />
+    <div style={{ minHeight: "100vh", backgroundColor: "#f8f9fa", paddingTop: "50px" }}>
+      <LoginFlow adminToken={params.t} />
     </div>
   );
 }

@@ -17,12 +17,22 @@ const allowedOrigin = process.env.NEXT_PUBLIC_ALLOWED_ORIGIN ?? '';
 
 export class ApiHandler {
   private static getDefaultHeaders(): HeadersInit {
+    // Import AuthService dynamically to avoid circular dependencies
+    let authHeaders = {};
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('auth_token');
+      if (token) {
+        authHeaders = { Authorization: `Bearer ${token}` };
+      }
+    }
+
     return {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
       'Access-Control-Allow-Origin': allowedOrigin,
       'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      ...authHeaders,
     };
   }
 
