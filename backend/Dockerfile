@@ -1,4 +1,4 @@
-FROM golang:1.22
+FROM golang:1.23
 
 ENV GO111MODULE=on \
     CGO_ENABLED=0 \
@@ -21,6 +21,5 @@ COPY . .
 
 EXPOSE 8080
 
-# Generate Swagger docs before starting Air
 CMD ["sh", "-c", "swag init -g main.go && air"]
 

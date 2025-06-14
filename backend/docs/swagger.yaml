@@ -1,9 +1,65 @@
-basePath: /api
+basePath: /
 definitions:
   handlers.HelloResponse:
     properties:
       message:
         example: Hello from Go backend 2!
+        type: string
+    type: object
+  models.AdminUser:
+    properties:
+      id:
+        example: 1
+        type: integer
+      last_login:
+        $ref: '#/definitions/models.NullTime'
+      username:
+        example: admin
+        type: string
+    type: object
+  models.ErrorResponse:
+    properties:
+      error:
+        example: Invalid credentials
+        type: string
+      message:
+        example: Username or password is incorrect
+        type: string
+    type: object
+  models.LoginRequest:
+    properties:
+      password:
+        example: password
+        type: string
+      username:
+        example: admin
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  models.LoginResponse:
+    properties:
+      expires_at:
+        example: "2023-12-31T23:59:59Z"
+        type: string
+      token:
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        type: string
+      user:
+        $ref: '#/definitions/models.AdminUser'
+    type: object
+  models.NullTime:
+    properties:
+      time:
+        type: string
+      valid:
+        type: boolean
+    type: object
+  models.SuccessResponse:
+    properties:
+      message:
+        example: Operation completed successfully
         type: string
     type: object
 host: localhost
@@ -19,12 +75,84 @@ info:
   title: Portfolio Web Application API
   version: "1.0"
 paths:
+  /api/{adminToken}/admin/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate admin user and return JWT token
+      parameters:
+      - description: Admin Token
+        in: path
+        name: adminToken
+        required: true
+        type: string
+      - description: Login credentials
+        in: body
+        name: loginRequest
+        required: true
+        schema:
+          $ref: '#/definitions/models.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Admin login
+      tags:
+      - admin
+  /api/{adminToken}/admin/logout:
+    post:
+      description: Invalidate current admin session
+      parameters:
+      - description: Admin Token
+        in: path
+        name: adminToken
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SuccessResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Admin logout
+      tags:
+      - admin
   /test:
     get:
       consumes:
       - application/json
       description: Returns a greeting message from the Go backend with hot reload
-        support 2
+        support
       produces:
       - application/json
       responses:
@@ -32,10 +160,9 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/handlers.HelloResponse'
-      summary: Hello endpoint for testing 2 3 4
+      summary: Hello endpoint for testing
       tags:
       - hello
 schemes:
 - http
-- https
 swagger: "2.0"

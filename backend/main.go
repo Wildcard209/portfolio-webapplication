@@ -28,9 +28,11 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/Wildcard209/portfolio-webapplication/auth"
 	"github.com/Wildcard209/portfolio-webapplication/config"
 	_ "github.com/Wildcard209/portfolio-webapplication/docs"
 	"github.com/Wildcard209/portfolio-webapplication/routes"
+	"github.com/Wildcard209/portfolio-webapplication/services"
 	"github.com/gin-gonic/gin"
 )
 
@@ -46,29 +48,43 @@ import (
 // @license.url https://opensource.org/licenses/MIT
 
 // @host localhost
-// @BasePath /api
-// @schemes http https
+// @BasePath /
+// @schemes http
 func main() {
-	// Initialize configuration
 	cfg, err := config.NewConfig()
 	if err != nil {
 		log.Fatalf("Failed to initialize configuration: %v", err)
 	}
 	defer cfg.Close()
 
-	// Set Gin mode based on environment
+	jwtSecret := os.Getenv("JWT_SECRET")
+	if jwtSecret == "" {
+		jwtSecret = "your-super-secret-jwt-key-change-this-in-production"
+		log.Println("Warning: Using default JWT secret. Please set JWT_SECRET environment variable in production.")
+	}
+
+	authService := auth.NewAuthService(jwtSecret, 1*time.Hour)
+
+	if cfg.DB != nil {
+		adminService := services.NewAdminService(cfg.DB, authService)
+		if err := adminService.InitializeAdminSystem(); err != nil {
+			log.Fatalf("Failed to initialize admin system: %v", err)
+		}
+
+		adminService.StartMaintenanceTasks()
+	} else {
+		log.Println("Warning: Database not available, skipping admin system initialization")
+	}
+
 	if os.Getenv("GIN_MODE") == "release" {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
-	// Initialize Gin router
 	r := gin.New()
 
-	// Add middleware
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
 
-	// Add CORS middleware for frontend integration
 	r.Use(func(c *gin.Context) {
 		c.Header("Access-Control-Allow-Origin", "*")
 		c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
@@ -82,16 +98,13 @@ func main() {
 		c.Next()
 	})
 
-	// Setup routes
-	routes.SetupRoutes(r)
+	routes.SetupRoutes(r, cfg, authService)
 
-	// Create HTTP server
 	srv := &http.Server{
 		Addr:    ":" + cfg.Port,
 		Handler: r,
 	}
 
-	// Start server in a goroutine
 	go func() {
 		log.Printf("Server is running on port %s", cfg.Port)
 		log.Printf("Swagger documentation available at http://localhost/api/swagger/index.html")
@@ -100,13 +113,11 @@ func main() {
 		}
 	}()
 
-	// Wait for interrupt signal to gracefully shutdown the server
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 	log.Println("Shutting down server...")
 
-	// Give outstanding requests 30 seconds to complete
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
