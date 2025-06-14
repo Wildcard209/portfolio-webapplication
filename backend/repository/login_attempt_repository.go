@@ -5,24 +5,34 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/Wildcard209/portfolio-webapplication/database"
 	"github.com/Wildcard209/portfolio-webapplication/models"
 )
 
 type LoginAttemptRepository struct {
-	db *sql.DB
+	db          *sql.DB
+	queryLoader *database.QueryLoader
 }
 
 func NewLoginAttemptRepository(db *sql.DB) *LoginAttemptRepository {
-	return &LoginAttemptRepository{db: db}
+	queryLoader, err := database.NewQueryLoader()
+	if err != nil {
+		fmt.Printf("Warning: Failed to load queries: %v\n", err)
+	}
+
+	return &LoginAttemptRepository{
+		db:          db,
+		queryLoader: queryLoader,
+	}
 }
 
 func (r *LoginAttemptRepository) CreateLoginAttempt(ipAddress, userAgent string, success bool, details *string) error {
-	query := `
-		INSERT INTO login_attempts (ip_address, user_agent, success, attempt_at, details)
-		VALUES ($1, $2, $3, CURRENT_TIMESTAMP, $4)
-	`
+	query, err := r.queryLoader.GetQuery(database.QueryKeys.LoginAttempt.CreateLoginAttempt)
+	if err != nil {
+		return fmt.Errorf("failed to get query: %w", err)
+	}
 
-	_, err := r.db.Exec(query, ipAddress, userAgent, success, details)
+	_, err = r.db.Exec(query, ipAddress, userAgent, success, details)
 	if err != nil {
 		return fmt.Errorf("failed to create login attempt: %w", err)
 	}
@@ -31,12 +41,10 @@ func (r *LoginAttemptRepository) CreateLoginAttempt(ipAddress, userAgent string,
 }
 
 func (r *LoginAttemptRepository) GetRecentLoginAttempts(ipAddress string, since time.Time) ([]models.LoginAttempt, error) {
-	query := `
-		SELECT id, ip_address, user_agent, success, attempt_at, details
-		FROM login_attempts 
-		WHERE ip_address = $1 AND attempt_at >= $2
-		ORDER BY attempt_at DESC
-	`
+	query, err := r.queryLoader.GetQuery(database.QueryKeys.LoginAttempt.GetRecentLoginAttempts)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get query: %w", err)
+	}
 
 	rows, err := r.db.Query(query, ipAddress, since)
 	if err != nil {
@@ -69,14 +77,13 @@ func (r *LoginAttemptRepository) GetRecentLoginAttempts(ipAddress string, since 
 }
 
 func (r *LoginAttemptRepository) GetFailedLoginAttempts(ipAddress string, since time.Time) (int, error) {
-	query := `
-		SELECT COUNT(*) 
-		FROM login_attempts 
-		WHERE ip_address = $1 AND success = FALSE AND attempt_at >= $2
-	`
+	query, err := r.queryLoader.GetQuery(database.QueryKeys.LoginAttempt.GetFailedLoginAttempts)
+	if err != nil {
+		return 0, fmt.Errorf("failed to get query: %w", err)
+	}
 
 	var count int
-	err := r.db.QueryRow(query, ipAddress, since).Scan(&count)
+	err = r.db.QueryRow(query, ipAddress, since).Scan(&count)
 	if err != nil {
 		return 0, fmt.Errorf("failed to get failed login attempts count: %w", err)
 	}
@@ -85,7 +92,10 @@ func (r *LoginAttemptRepository) GetFailedLoginAttempts(ipAddress string, since 
 }
 
 func (r *LoginAttemptRepository) CleanupOldLoginAttempts(olderThan time.Time) error {
-	query := `DELETE FROM login_attempts WHERE attempt_at < $1`
+	query, err := r.queryLoader.GetQuery(database.QueryKeys.LoginAttempt.CleanupOldLoginAttempts)
+	if err != nil {
+		return fmt.Errorf("failed to get query: %w", err)
+	}
 
 	result, err := r.db.Exec(query, olderThan)
 	if err != nil {

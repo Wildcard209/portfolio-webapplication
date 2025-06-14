@@ -56,14 +56,13 @@ func (r *AdminRepository) GetAdminByUsername(username string) (*models.Admin, er
 }
 
 func (r *AdminRepository) GetAdminByID(id int) (*models.Admin, error) {
-	query := `
-		SELECT id, username, password_hash, password_salt, last_login, current_token, token_expiration, created_at, updated_at
-		FROM admins 
-		WHERE id = $1
-	`
+	query, err := r.queryLoader.GetQuery(database.QueryKeys.Admin.GetAdminByID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get query: %w", err)
+	}
 
 	admin := &models.Admin{}
-	err := r.db.QueryRow(query, id).Scan(
+	err = r.db.QueryRow(query, id).Scan(
 		&admin.ID,
 		&admin.Username,
 		&admin.PasswordHash,
@@ -86,14 +85,13 @@ func (r *AdminRepository) GetAdminByID(id int) (*models.Admin, error) {
 }
 
 func (r *AdminRepository) CreateAdmin(username, passwordHash, passwordSalt string) (*models.Admin, error) {
-	query := `
-		INSERT INTO admins (username, password_hash, password_salt, created_at, updated_at) 
-		VALUES ($1, $2, $3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-		RETURNING id, username, password_hash, password_salt, last_login, current_token, token_expiration, created_at, updated_at
-	`
+	query, err := r.queryLoader.GetQuery(database.QueryKeys.Admin.CreateAdmin)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get query: %w", err)
+	}
 
 	admin := &models.Admin{}
-	err := r.db.QueryRow(query, username, passwordHash, passwordSalt).Scan(
+	err = r.db.QueryRow(query, username, passwordHash, passwordSalt).Scan(
 		&admin.ID,
 		&admin.Username,
 		&admin.PasswordHash,
@@ -113,11 +111,10 @@ func (r *AdminRepository) CreateAdmin(username, passwordHash, passwordSalt strin
 }
 
 func (r *AdminRepository) UpdateAdminToken(id int, token string, expiration time.Time) error {
-	query := `
-		UPDATE admins 
-		SET current_token = $1, token_expiration = $2, last_login = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
-		WHERE id = $3
-	`
+	query, err := r.queryLoader.GetQuery(database.QueryKeys.Admin.UpdateAdminToken)
+	if err != nil {
+		return fmt.Errorf("failed to get query: %w", err)
+	}
 
 	result, err := r.db.Exec(query, token, expiration, id)
 	if err != nil {
@@ -137,13 +134,12 @@ func (r *AdminRepository) UpdateAdminToken(id int, token string, expiration time
 }
 
 func (r *AdminRepository) InvalidateAdminToken(id int) error {
-	query := `
-		UPDATE admins 
-		SET current_token = NULL, token_expiration = NULL, updated_at = CURRENT_TIMESTAMP
-		WHERE id = $1
-	`
+	query, err := r.queryLoader.GetQuery(database.QueryKeys.Admin.InvalidateAdminToken)
+	if err != nil {
+		return fmt.Errorf("failed to get query: %w", err)
+	}
 
-	_, err := r.db.Exec(query, id)
+	_, err = r.db.Exec(query, id)
 	if err != nil {
 		return fmt.Errorf("failed to invalidate admin token: %w", err)
 	}
@@ -152,14 +148,13 @@ func (r *AdminRepository) InvalidateAdminToken(id int) error {
 }
 
 func (r *AdminRepository) GetAdminByToken(token string) (*models.Admin, error) {
-	query := `
-		SELECT id, username, password_hash, password_salt, last_login, current_token, token_expiration, created_at, updated_at
-		FROM admins 
-		WHERE current_token = $1 AND token_expiration > CURRENT_TIMESTAMP
-	`
+	query, err := r.queryLoader.GetQuery(database.QueryKeys.Admin.GetAdminByToken)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get query: %w", err)
+	}
 
 	admin := &models.Admin{}
-	err := r.db.QueryRow(query, token).Scan(
+	err = r.db.QueryRow(query, token).Scan(
 		&admin.ID,
 		&admin.Username,
 		&admin.PasswordHash,
@@ -182,8 +177,13 @@ func (r *AdminRepository) GetAdminByToken(token string) (*models.Admin, error) {
 }
 
 func (r *AdminRepository) CountAdmins() (int, error) {
+	query, err := r.queryLoader.GetQuery(database.QueryKeys.Admin.CountAdmins)
+	if err != nil {
+		return 0, fmt.Errorf("failed to get query: %w", err)
+	}
+
 	var count int
-	err := r.db.QueryRow("SELECT COUNT(*) FROM admins").Scan(&count)
+	err = r.db.QueryRow(query).Scan(&count)
 	if err != nil {
 		return 0, fmt.Errorf("failed to count admins: %w", err)
 	}
@@ -191,13 +191,12 @@ func (r *AdminRepository) CountAdmins() (int, error) {
 }
 
 func (r *AdminRepository) CleanupExpiredTokens() error {
-	query := `
-		UPDATE admins 
-		SET current_token = NULL, token_expiration = NULL, updated_at = CURRENT_TIMESTAMP
-		WHERE token_expiration < CURRENT_TIMESTAMP
-	`
+	query, err := r.queryLoader.GetQuery(database.QueryKeys.Admin.CleanupExpiredTokens)
+	if err != nil {
+		return fmt.Errorf("failed to get query: %w", err)
+	}
 
-	_, err := r.db.Exec(query)
+	_, err = r.db.Exec(query)
 	if err != nil {
 		return fmt.Errorf("failed to cleanup expired tokens: %w", err)
 	}
