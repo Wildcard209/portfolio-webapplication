@@ -1,5 +1,22 @@
 [build]
 bin = "./app"
-cmd = "go build -o ./app"
-include_ext = ["go", "tmpl"]
-exclude_dir = ["vendor"]
+cmd = "swag init -g main.go && go build -o ./app"
+include_ext = ["go"]
+exclude_dir = ["vendor", "tmp"]
+delay = 1000
+stop_on_root = true
+send_interrupt = true
+kill_delay = 3000
+
+[misc]
+clean_on_exit = true
+
+[log]
+time = true
+main_only = false
+
+[color]
+main = "magenta"
+watcher = "cyan"
+build = "yellow"
+runner = "green"

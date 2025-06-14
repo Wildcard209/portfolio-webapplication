@@ -1,0 +1,41 @@
+basePath: /api
+definitions:
+  handlers.HelloResponse:
+    properties:
+      message:
+        example: Hello from Go backend 2!
+        type: string
+    type: object
+host: localhost
+info:
+  contact:
+    email: support@example.com
+    name: API Support
+  description: This is a RESTful API for the portfolio web application
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: N/A
+  title: Portfolio Web Application API
+  version: "1.0"
+paths:
+  /test:
+    get:
+      consumes:
+      - application/json
+      description: Returns a greeting message from the Go backend with hot reload
+        support 2
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.HelloResponse'
+      summary: Hello endpoint for testing 2 3 4
+      tags:
+      - hello
+schemes:
+- http
+- https
+swagger: "2.0"
