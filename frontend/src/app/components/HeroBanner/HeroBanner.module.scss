@@ -13,9 +13,9 @@
 }
 
 .background-layer {
-  background-image: url("https://picsum.photos/400/340");
   background-size: cover;
   background-position: center;
+  background-repeat: no-repeat;
   filter: blur(10px);
   height: 100%;
   width: 100%;
@@ -23,6 +23,10 @@
   top: 0;
   left: 0;
   z-index: -1;
+  
+  // Fallback background for when no image is uploaded
+  background-color: #6c757d;
+  background-image: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
 .banner-text {

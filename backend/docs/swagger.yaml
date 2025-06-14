@@ -75,6 +75,50 @@ info:
   title: Portfolio Web Application API
   version: "1.0"
 paths:
+  /{adminToken}/admin/assets/hero-banner:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload a new hero banner image (requires authentication)
+      parameters:
+      - description: Admin Token
+        in: path
+        name: adminToken
+        required: true
+        type: string
+      - description: Hero banner image file
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "413":
+          description: Request Entity Too Large
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Upload hero banner image
+      tags:
+      - assets
   /{adminToken}/admin/login:
     post:
       consumes:
@@ -147,6 +191,44 @@ paths:
       summary: Admin logout
       tags:
       - admin
+  /api/assets/hero-banner:
+    get:
+      description: Get the current hero banner image
+      produces:
+      - image/jpeg
+      - image/png
+      - image/gif
+      - image/webp
+      responses:
+        "200":
+          description: Hero banner image
+          schema:
+            type: file
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Get hero banner image
+      tags:
+      - assets
+  /api/assets/info:
+    get:
+      description: Get information about available assets
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get asset information
+      tags:
+      - assets
   /test:
     get:
       consumes:

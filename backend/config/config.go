@@ -72,7 +72,7 @@ func initDB() (*sql.DB, error) {
 func initMinio() (*minio.Client, error) {
 	minioUser := os.Getenv("MINIO_ROOT_USER")
 	minioPassword := os.Getenv("MINIO_ROOT_PASSWORD")
-	minioEndpoint := getEnv("MINIO_ENDPOINT", "localhost:9000")
+	minioEndpoint := getEnv("MINIO_ENDPOINT", "minio:9000")
 
 	minioClient, err := minio.New(minioEndpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(minioUser, minioPassword, ""),
