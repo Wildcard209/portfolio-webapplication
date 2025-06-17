@@ -57,14 +57,12 @@ export default function HeroBanner() {
     }
 
     try {
-      // Use the admin file upload hook
       const formData = new FormData();
       formData.append('file', selectedFile);
 
       const result = await uploadFile(formData);
 
       if (result) {
-        // Refetch the asset info to update the hero banner
         await refetchAssetInfo();
         setShowUploadControls(false);
         setSelectedFile(null);
@@ -99,9 +97,6 @@ export default function HeroBanner() {
         className={`${styles["background-layer"]}`}
         style={{
           backgroundImage: currentBackgroundImage ? `url(${currentBackgroundImage})` : undefined,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat'
         }}
       ></div>
       
@@ -116,66 +111,37 @@ export default function HeroBanner() {
       {isAuthenticated && !showUploadControls && (
         <button
           onClick={() => setShowUploadControls(true)}
-          style={{
-            position: 'absolute',
-            top: '20px',
-            right: '20px',
-            padding: '10px 15px',
-            backgroundColor: 'rgba(0, 123, 255, 0.8)',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            fontSize: '14px',
-            zIndex: 10
-          }}
+          className={styles["admin-toggle-button"]}
         >
           Change Hero Banner
         </button>
       )}
 
       {isAuthenticated && showUploadControls && (
-        <div style={{
-          position: 'absolute',
-          top: '20px',
-          right: '20px',
-          backgroundColor: 'rgba(255, 255, 255, 0.95)',
-          padding: '15px',
-          borderRadius: '8px',
-          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-          zIndex: 10,
-          minWidth: '250px'
-        }}>
+        <div className={styles["admin-controls-panel"]}>
           <input
             ref={fileInputRef}
             type="file"
             accept="image/*"
             onChange={handleFileSelect}
-            style={{ marginBottom: '10px', width: '100%' }}
+            className={styles["file-input"]}
           />
           
           {selectedFile && (
-            <div style={{ marginBottom: '10px' }}>
-              <p style={{ margin: '0 0 5px 0', fontSize: '12px', color: '#666' }}>
-                Selected: {selectedFile.name}
-              </p>
+            <div className={styles["file-info"]}>
+              <p>Selected: {selectedFile.name}</p>
             </div>
           )}
 
-          <div style={{ display: 'flex', gap: '10px' }}>
+          <div className={styles["button-group"]}>
             <button
               onClick={handleUpload}
               disabled={!selectedFile || uploading}
-              style={{
-                flex: 1,
-                padding: '8px 12px',
-                backgroundColor: selectedFile && !uploading ? '#28a745' : '#6c757d',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: selectedFile && !uploading ? 'pointer' : 'not-allowed',
-                fontSize: '12px'
-              }}
+              className={`${styles["upload-button"]} ${
+                selectedFile && !uploading 
+                  ? styles["enabled"] 
+                  : styles["disabled"]
+              }`}
             >
               {uploading ? 'Uploading...' : 'Upload'}
             </button>
@@ -183,16 +149,9 @@ export default function HeroBanner() {
             <button
               onClick={handleCancel}
               disabled={uploading}
-              style={{
-                flex: 1,
-                padding: '8px 12px',
-                backgroundColor: '#dc3545',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: uploading ? 'not-allowed' : 'pointer',
-                fontSize: '12px'
-              }}
+              className={`${styles["cancel-button"]} ${
+                uploading ? styles["disabled"] : ""
+              }`}
             >
               Cancel
             </button>
