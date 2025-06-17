@@ -121,3 +121,50 @@ export function useApiMutation<T, TData = unknown>(
     mutate,
   };
 }
+
+export function useApiFileUpload<T>(
+  endpoint: string,
+  options: UseApiOptions = {}
+) {
+  const [data, setData] = useState<T | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const uploadFile = useCallback(
+    async (formData: FormData) => {
+      setIsLoading(true);
+      try {
+        const response = await ApiHandler.uploadFile<T>(endpoint, formData, {
+          next: {
+            tags: options.cacheTag ? [options.cacheTag] : undefined,
+          },
+        });
+
+        if (response.error) {
+          setError(response.error);
+          setData(null);
+          return null;
+        }
+
+        setData(response.data);
+        setError(null);
+        return response.data;
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'An error occurred';
+        setError(errorMessage);
+        setData(null);
+        return null;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [endpoint, options.cacheTag]
+  );
+
+  return {
+    data,
+    error,
+    isLoading,
+    uploadFile,
+  };
+}

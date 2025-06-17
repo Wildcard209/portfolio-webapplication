@@ -118,5 +118,37 @@ export class ApiHandler {
       method: 'DELETE',
       ...options,
     });
+  }  static async uploadFile<T>(
+    endpoint: string,
+    formData: FormData,
+    options: RequestInit & FetchOptions = {}
+  ): Promise<ApiResponse<T>> {
+    const url = `${apiUrl}${endpoint}`;
+    
+    let authHeaders = {};
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('auth_token');
+      if (token) {
+        authHeaders = { Authorization: `Bearer ${token}` };
+      }
+    }
+
+    return this.fetchWithErrorHandling<T>(url, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'Accept': 'application/json',
+        'Access-Control-Allow-Origin': allowedOrigin,
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        ...authHeaders,
+        ...options.headers,
+      },
+      ...options,
+    });
+  }
+
+  static getAssetUrl(endpoint: string): string {
+    return `${apiUrl}${endpoint}?t=${Date.now()}`;
   }
 }

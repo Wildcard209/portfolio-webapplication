@@ -1,35 +1,35 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import { useAuth } from "@/lib/hooks/useAuth";
-import { EnhancedApiHandler } from "@/lib/api/enhancedApiHandler";
+import { useApi, useApiFileUpload } from "@/lib/api/hooks/useApi";
+import { ApiHandler } from "@/lib/api/apiHandler";
 import styles from "./HeroBanner.module.scss";
 
 export default function HeroBanner() {
   const { isAuthenticated } = useAuth();
-  const [backgroundImage, setBackgroundImage] = useState<string>("");
+  
+  const { 
+    data: assetInfo, 
+    refetch: refetchAssetInfo 
+  } = useApi<{ hero_banner_available: boolean }>('/assets/info');
+
+  const adminToken = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : null;
+  const { 
+    uploadFile, 
+    isLoading: uploading, 
+    error: uploadError 
+  } = useApiFileUpload(adminToken ? `/${adminToken}/admin/assets/hero-banner` : '');
+
   const [showUploadControls, setShowUploadControls] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>("");
-  const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    loadHeroBanner();
-  }, []);
-
-  const loadHeroBanner = async () => {
-    try {
-      const infoResponse = await EnhancedApiHandler.get<any>('/assets/info');
-      
-      if (infoResponse.data?.hero_banner_available) {
-        const apiUrl = process.env.NEXT_PUBLIC_BASE_API_URL || 'http://localhost/api';
-        setBackgroundImage(`${apiUrl}/assets/hero-banner?t=${Date.now()}`);
-      }
-    } catch (error) {
-      console.log('No hero banner found or error loading:', error);
-    }
-  };
+  // Get the background image URL using ApiHandler when hero banner is available
+  const backgroundImage = assetInfo?.hero_banner_available 
+    ? ApiHandler.getAssetUrl('/assets/hero-banner')
+    : "";
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -52,45 +52,31 @@ export default function HeroBanner() {
   };
 
   const handleUpload = async () => {
-    if (!selectedFile) return;
+    if (!selectedFile || !adminToken) {
+      alert('No file selected or admin token not found');
+      return;
+    }
 
-    setUploading(true);
     try {
-      const adminToken = localStorage.getItem('admin_token');
-      if (!adminToken) {
-        alert('Admin token not found');
-        return;
-      }
-
+      // Use the file upload hook
       const formData = new FormData();
       formData.append('file', selectedFile);
 
-      const apiUrl = process.env.NEXT_PUBLIC_BASE_API_URL || 'http://localhost/api';
-      const token = localStorage.getItem('auth_token');
-      
-      const response = await fetch(`${apiUrl}/${adminToken}/admin/assets/hero-banner`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-        body: formData,
-      });
+      const result = await uploadFile(formData);
 
-      if (response.ok) {
-        await loadHeroBanner();
+      if (result) {
+        // Refetch the asset info to update the hero banner
+        await refetchAssetInfo();
         setShowUploadControls(false);
         setSelectedFile(null);
         setPreviewUrl("");
         alert('Hero banner updated successfully!');
-      } else {
-        const error = await response.json();
-        alert(`Upload failed: ${error.message || error.error}`);
+      } else if (uploadError) {
+        alert(`Upload failed: ${uploadError}`);
       }
     } catch (error) {
       console.error('Upload error:', error);
       alert('Upload failed. Please try again.');
-    } finally {
-      setUploading(false);
     }
   };
 
