@@ -19,9 +19,13 @@ type Config struct {
 }
 
 func NewConfig() (*Config, error) {
+	// Try to load .env file, but don't fail if it doesn't exist
+	// This allows the app to work with environment variables only (Docker)
 	err := godotenv.Load("/app/.env")
 	if err != nil {
-		log.Printf("Warning: Error loading .env file: %v", err)
+		log.Printf("Info: No .env file found, using environment variables: %v", err)
+	} else {
+		log.Println("Info: Loaded configuration from .env file")
 	}
 
 	config := &Config{

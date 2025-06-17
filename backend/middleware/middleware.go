@@ -3,6 +3,7 @@ package middleware
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -98,21 +99,67 @@ func SecurityHeadersMiddleware() gin.HandlerFunc {
 }
 
 func CORSMiddleware() gin.HandlerFunc {
+	// Define allowed origins from environment variables with secure defaults
+	allowedOrigins := getAllowedOrigins()
+
 	return func(c *gin.Context) {
 		origin := c.Request.Header.Get("Origin")
 
-		c.Header("Access-Control-Allow-Origin", origin)
-		c.Header("Access-Control-Allow-Credentials", "true")
-		c.Header("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+		// Check if the origin is in our allowed list
+		isOriginAllowed := false
+		for _, allowedOrigin := range allowedOrigins {
+			if origin == allowedOrigin {
+				isOriginAllowed = true
+				break
+			}
+		}
+
+		// Only set CORS headers if origin is allowed
+		if isOriginAllowed {
+			c.Header("Access-Control-Allow-Origin", origin)
+			c.Header("Access-Control-Allow-Credentials", "true")
+		} else {
+			// Log suspicious requests for monitoring
+			fmt.Printf("SECURITY WARNING: Blocked CORS request from unauthorized origin: %s\n", origin)
+		}
+
+		c.Header("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, Cache-Control, X-Requested-With")
 		c.Header("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE")
+		c.Header("Access-Control-Max-Age", "86400") // Cache preflight for 24 hours
 
 		if c.Request.Method == "OPTIONS" {
-			c.AbortWithStatus(http.StatusNoContent)
+			if isOriginAllowed {
+				c.AbortWithStatus(http.StatusNoContent)
+			} else {
+				c.AbortWithStatus(http.StatusForbidden)
+			}
 			return
 		}
 
 		c.Next()
 	}
+}
+
+// getAllowedOrigins returns the list of allowed origins from environment variables
+func getAllowedOrigins() []string {
+	// Default allowed origins for development and production
+	defaultOrigins := []string{
+		"http://localhost:3000", // Local development
+		"http://localhost",      // Local with nginx
+	}
+
+	// Get additional allowed origins from environment variable
+	envOrigins := os.Getenv("ALLOWED_ORIGINS")
+	if envOrigins != "" {
+		// Split by comma and trim whitespace
+		additionalOrigins := strings.Split(envOrigins, ",")
+		for i, origin := range additionalOrigins {
+			additionalOrigins[i] = strings.TrimSpace(origin)
+		}
+		defaultOrigins = append(defaultOrigins, additionalOrigins...)
+	}
+
+	return defaultOrigins
 }
 
 func LoggingMiddleware() gin.HandlerFunc {

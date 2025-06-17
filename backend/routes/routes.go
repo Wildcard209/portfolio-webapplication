@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"net/http"
 	"os"
 	"time"
 
@@ -17,17 +16,11 @@ import (
 )
 
 func SetupRoutes(r *gin.Engine, cfg *config.Config, authService *auth.AuthService) {
-	r.Use(func(c *gin.Context) {
-		c.Header("Access-Control-Allow-Origin", "*")
-		c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		c.Header("Access-Control-Allow-Headers", "Content-Type, Authorization")
+	// Apply secure CORS middleware
+	r.Use(middleware.CORSMiddleware())
 
-		if c.Request.Method == "OPTIONS" {
-			c.AbortWithStatus(http.StatusNoContent)
-			return
-		}
-		c.Next()
-	})
+	// Apply security headers middleware
+	r.Use(middleware.SecurityHeadersMiddleware())
 
 	r.Use(middleware.LoggingMiddleware())
 
