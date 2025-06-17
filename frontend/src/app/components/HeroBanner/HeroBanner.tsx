@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import { useAuth } from "@/lib/hooks/useAuth";
-import { useApi, useApiFileUpload } from "@/lib/api/hooks/useApi";
+import { useApi, useAdminApiFileUpload } from "@/lib/api/hooks/useApi";
 import { ApiHandler } from "@/lib/api/apiHandler";
 import styles from "./HeroBanner.module.scss";
 
@@ -14,12 +14,11 @@ export default function HeroBanner() {
     refetch: refetchAssetInfo 
   } = useApi<{ hero_banner_available: boolean }>('/assets/info');
 
-  const adminToken = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : null;
   const { 
     uploadFile, 
     isLoading: uploading, 
     error: uploadError 
-  } = useApiFileUpload(adminToken ? `/${adminToken}/admin/assets/hero-banner` : '');
+  } = useAdminApiFileUpload('/assets/hero-banner');
 
   const [showUploadControls, setShowUploadControls] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -52,13 +51,13 @@ export default function HeroBanner() {
   };
 
   const handleUpload = async () => {
-    if (!selectedFile || !adminToken) {
-      alert('No file selected or admin token not found');
+    if (!selectedFile) {
+      alert('No file selected');
       return;
     }
 
     try {
-      // Use the file upload hook
+      // Use the admin file upload hook
       const formData = new FormData();
       formData.append('file', selectedFile);
 
@@ -135,7 +134,6 @@ export default function HeroBanner() {
         </button>
       )}
 
-      {/* Upload controls */}
       {isAuthenticated && showUploadControls && (
         <div style={{
           position: 'absolute',

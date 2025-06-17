@@ -118,34 +118,68 @@ export class ApiHandler {
       method: 'DELETE',
       ...options,
     });
-  }  static async uploadFile<T>(
+  }
+  
+  static async uploadFile<T>(
     endpoint: string,
     formData: FormData,
     options: RequestInit & FetchOptions = {}
   ): Promise<ApiResponse<T>> {
     const url = `${apiUrl}${endpoint}`;
+    console.log('Upload URL:', url);
+    console.log('FormData entries:', Array.from(formData.entries()));
     
     let authHeaders = {};
     if (typeof window !== 'undefined') {
       const token = localStorage.getItem('auth_token');
       if (token) {
         authHeaders = { Authorization: `Bearer ${token}` };
+        console.log('Using auth token:', token.substring(0, 20) + '...');
+      } else {
+        console.log('No auth token found');
       }
     }
 
-    return this.fetchWithErrorHandling<T>(url, {
-      method: 'POST',
-      body: formData,
-      headers: {
-        'Accept': 'application/json',
-        'Access-Control-Allow-Origin': allowedOrigin,
-        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        ...authHeaders,
-        ...options.headers,
-      },
-      ...options,
-    });
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+        headers: {
+          'Accept': 'application/json',
+          'Access-Control-Allow-Origin': allowedOrigin,
+          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+          ...authHeaders,
+          ...options.headers,
+        },
+        ...options,
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Upload failed:', response.status, errorText);
+        return {
+          data: null,
+          error: `HTTP error! status: ${response.status} - ${errorText}`,
+          status: response.status,
+        };
+      }
+
+      const data = await response.json();
+      return {
+        data,
+        error: null,
+        status: response.status,
+      };
+    } catch (error) {
+      console.error('Upload error:', error);
+      return {
+        data: null,
+        error: error instanceof Error ? error.message : 'Unknown error occurred',
+        status: 500,
+      };
+    }
   }
 
   static getAssetUrl(endpoint: string): string {

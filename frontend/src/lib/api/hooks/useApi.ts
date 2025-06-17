@@ -168,3 +168,36 @@ export function useApiFileUpload<T>(
     uploadFile,
   };
 }
+
+function getAdminEndpoint(endpoint: string): string {
+  const adminToken = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : null;
+  if (!adminToken) {
+    return '';
+  }
+  return `/${adminToken}/admin${endpoint}`;
+}
+
+export function useAdminApi<T>(
+  endpoint: string,
+  options: UseApiOptions = {}
+) {
+  const adminEndpoint = getAdminEndpoint(endpoint);
+  return useApi<T>(adminEndpoint, options);
+}
+
+export function useAdminApiMutation<T, TData = unknown>(
+  endpoint: string,
+  method: 'POST' | 'PUT' | 'DELETE' = 'POST',
+  options: UseApiOptions = {}
+) {
+  const adminEndpoint = getAdminEndpoint(endpoint);
+  return useApiMutation<T, TData>(adminEndpoint, method, options);
+}
+
+export function useAdminApiFileUpload<T>(
+  endpoint: string,
+  options: UseApiOptions = {}
+) {
+  const adminEndpoint = getAdminEndpoint(endpoint);
+  return useApiFileUpload<T>(adminEndpoint, options);
+}
