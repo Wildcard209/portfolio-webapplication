@@ -7,7 +7,6 @@ import (
 	"os"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
-	"github.com/joho/godotenv"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 )
@@ -21,12 +20,7 @@ type Config struct {
 func NewConfig() (*Config, error) {
 	// Try to load .env file, but don't fail if it doesn't exist
 	// This allows the app to work with environment variables only (Docker)
-	err := godotenv.Load("/app/.env")
-	if err != nil {
-		log.Printf("Info: No .env file found, using environment variables: %v", err)
-	} else {
-		log.Println("Info: Loaded configuration from .env file")
-	}
+	var err error
 
 	config := &Config{
 		Port: getEnv("PORT", "8080"),

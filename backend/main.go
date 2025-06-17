@@ -63,8 +63,12 @@ func main() {
 
 	jwtSecret := os.Getenv("JWT_SECRET")
 	if jwtSecret == "" {
-		jwtSecret = "your-super-secret-jwt-key-change-this-in-production"
-		log.Println("Warning: Using default JWT secret. Please set JWT_SECRET environment variable in production.")
+		if os.Getenv("GIN_MODE") == "release" {
+			log.Fatal("JWT_SECRET environment variable must be set in production")
+		} else {
+			jwtSecret = "your-super-secret-jwt-key-change-this-in-production"
+			log.Println("Warning: Using default JWT secret. Please set JWT_SECRET environment variable.")
+		}
 	}
 
 	authService := auth.NewAuthService(jwtSecret, 1*time.Hour)
