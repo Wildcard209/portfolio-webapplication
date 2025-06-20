@@ -55,6 +55,11 @@ import (
 // @name Authorization
 // @description Type "Bearer" followed by a space and JWT token.
 func main() {
+	if os.Getenv("GIN_MODE") == "release" {
+		gin.SetMode(gin.ReleaseMode)
+		gin.DisableConsoleColor()
+	}
+
 	cfg, err := config.NewConfig()
 	if err != nil {
 		log.Fatalf("Failed to initialize configuration: %v", err)
@@ -86,13 +91,16 @@ func main() {
 		log.Println("Warning: Database not available, skipping admin system initialization")
 	}
 
-	if os.Getenv("GIN_MODE") == "release" {
-		gin.SetMode(gin.ReleaseMode)
-	}
-
 	r := gin.New()
 
-	r.Use(gin.Logger())
+	if os.Getenv("GIN_MODE") == "release" {
+		r.Use(gin.LoggerWithConfig(gin.LoggerConfig{
+			SkipPaths: []string{"/api/health"},
+		}))
+	} else {
+		r.Use(gin.Logger())
+	}
+
 	r.Use(gin.Recovery())
 
 	routes.SetupRoutes(r, cfg, authService)
@@ -103,8 +111,12 @@ func main() {
 	}
 
 	go func() {
-		log.Printf("Server is running on port %s", cfg.Port)
-		log.Printf("Swagger documentation available at http://localhost/api/swagger/index.html")
+		if os.Getenv("GIN_MODE") == "release" {
+			log.Printf("Server is running on port %s", cfg.Port)
+		} else {
+			log.Printf("Server is running on port %s", cfg.Port)
+			log.Printf("Swagger documentation available at http://localhost/api/swagger/index.html")
+		}
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("Failed to start server: %v", err)
 		}

@@ -16,6 +16,8 @@ import (
 )
 
 func SetupRoutes(r *gin.Engine, cfg *config.Config, authService *auth.AuthService) {
+	r.Use(middleware.HeaderSanitizationMiddleware(middleware.NewHeaderSanitizationConfig()))
+
 	r.Use(middleware.CORSMiddleware())
 
 	r.Use(middleware.SecurityHeadersMiddleware(cfg))

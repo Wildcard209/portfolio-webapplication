@@ -51,6 +51,13 @@ services:
       CSP_MODE: ${CSP_MODE:-development}
       SECURITY_HEADERS_ENABLED: ${SECURITY_HEADERS_ENABLED:-true}
       
+      # Information Disclosure Protection
+      HEADER_SANITIZATION_ENABLED: ${HEADER_SANITIZATION_ENABLED:-true}
+      REMOVE_SERVER_HEADERS: ${REMOVE_SERVER_HEADERS:-true}
+      REMOVE_VERSION_HEADERS: ${REMOVE_VERSION_HEADERS:-true}
+      REMOVE_DEBUG_HEADERS: ${REMOVE_DEBUG_HEADERS:-true}
+      CUSTOM_SERVER_HEADER: ${CUSTOM_SERVER_HEADER:-Portfolio-API}
+      
       # Admin User Configuration (optional)
       ADMIN_USER: ${ADMIN_USER:-}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
@@ -83,7 +90,7 @@ services:
       HTTPS_MODE: ${HTTPS_MODE:-false}
 
   db:
-    image: postgres:17-alpine
+    image: postgres:17.5-alpine
     container_name: postgres
     environment:
       POSTGRES_USER: ${POSTGRES_USER}

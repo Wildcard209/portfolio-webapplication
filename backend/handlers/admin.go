@@ -18,6 +18,7 @@ type AdminHandler struct {
 	adminRepo           *repository.AdminRepository
 	loginAttemptRepo    *repository.LoginAttemptRepository
 	inputSanitizer      *utils.InputSanitizer
+	errorHandler        *utils.ErrorHandler
 	maxFailedAttempts   int
 	lockoutDuration     time.Duration
 	failedAttemptWindow time.Duration
@@ -33,6 +34,7 @@ func NewAdminHandler(
 		adminRepo:           adminRepo,
 		loginAttemptRepo:    loginAttemptRepo,
 		inputSanitizer:      utils.NewInputSanitizer(1000),
+		errorHandler:        utils.NewErrorHandler(),
 		maxFailedAttempts:   5,
 		lockoutDuration:     15 * time.Minute,
 		failedAttemptWindow: 5 * time.Minute,
@@ -92,53 +94,35 @@ func (h *AdminHandler) Login(c *gin.Context) {
 	)
 	if err != nil {
 		h.logLoginAttempt(c, false, fmt.Sprintf("Failed to check login attempts: %v", err))
-		c.JSON(http.StatusInternalServerError, models.ErrorResponse{
-			Error:   "Internal server error",
-			Message: "Failed to process login request",
-		})
+		h.errorHandler.HandleError(c, err, "Failed to process login request", utils.ErrorLevelError)
 		return
 	}
 
 	if failedAttempts >= h.maxFailedAttempts {
 		h.logLoginAttempt(c, false, fmt.Sprintf("IP locked out due to %d failed attempts", failedAttempts))
-		c.JSON(http.StatusTooManyRequests, models.ErrorResponse{
-			Error:   "Too many failed attempts",
-			Message: fmt.Sprintf("IP address locked out for %v due to too many failed login attempts", h.lockoutDuration),
-		})
+		h.errorHandler.HandleRateLimitError(c, fmt.Sprintf("IP address locked out for %v due to too many failed login attempts", h.lockoutDuration))
 		return
 	}
 
 	admin, err := h.adminRepo.GetAdminByUsername(req.Username)
 	if err != nil {
 		h.logLoginAttempt(c, false, fmt.Sprintf("Database error: %v", err))
-		c.JSON(http.StatusInternalServerError, models.ErrorResponse{
-			Error:   "Internal server error",
-			Message: "Failed to process login request",
-		})
+		h.errorHandler.HandleError(c, err, "Failed to process login request", utils.ErrorLevelError)
 		return
 	}
 
 	if admin == nil {
 		h.logLoginAttempt(c, false, "User not found")
-		c.JSON(http.StatusUnauthorized, models.ErrorResponse{
-			Error:   "Invalid credentials",
-			Message: "Username or password is incorrect",
-		})
+		h.errorHandler.HandleAuthError(c, fmt.Errorf("user not found"), "Username or password is incorrect")
 		return
 	}
 
 	if err := h.authService.VerifyPasswordWithHashVersion(admin.PasswordHash, req.Password, admin.HashVersion, admin.PasswordSalt); err != nil {
 		h.logLoginAttempt(c, false, "Invalid password: "+err.Error())
 		if err.Error() == "legacy password format no longer supported - please reset your password" {
-			c.JSON(http.StatusUnauthorized, models.ErrorResponse{
-				Error:   "Password reset required",
-				Message: "Your password format needs to be updated. Please reset your password.",
-			})
+			h.errorHandler.HandleAuthError(c, err, "Your password format needs to be updated. Please reset your password.")
 		} else {
-			c.JSON(http.StatusUnauthorized, models.ErrorResponse{
-				Error:   "Invalid credentials",
-				Message: "Username or password is incorrect",
-			})
+			h.errorHandler.HandleAuthError(c, err, "Username or password is incorrect")
 		}
 		return
 	}
@@ -146,10 +130,7 @@ func (h *AdminHandler) Login(c *gin.Context) {
 	tokenPair, err := h.authService.GenerateTokenPair(admin.ID, admin.Username)
 	if err != nil {
 		h.logLoginAttempt(c, false, fmt.Sprintf("Failed to generate token: %v", err))
-		c.JSON(http.StatusInternalServerError, models.ErrorResponse{
-			Error:   "Internal server error",
-			Message: "Failed to generate authentication token",
-		})
+		h.errorHandler.HandleError(c, err, "Failed to generate authentication token", utils.ErrorLevelError)
 		return
 	}
 
