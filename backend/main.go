@@ -93,8 +93,6 @@ func main() {
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
 
-	// CORS is now handled in the routes setup with secure middleware
-
 	routes.SetupRoutes(r, cfg, authService)
 
 	srv := &http.Server{

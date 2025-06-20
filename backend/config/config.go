@@ -4,7 +4,10 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"net/url"
 	"os"
+	"strings"
+	"time"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/minio/minio-go/v7"
@@ -17,9 +20,57 @@ type Config struct {
 	Port        string
 }
 
+type DatabaseConfig struct {
+	Host     string
+	Port     string
+	User     string
+	Password string
+	Database string
+}
+
+type MinioConfig struct {
+	Endpoint  string
+	AccessKey string
+	SecretKey string
+	UseSSL    bool
+}
+
+type SanitizedError struct {
+	Operation string
+	Cause     string
+}
+
+func (e *SanitizedError) Error() string {
+	return fmt.Sprintf("database operation failed: %s - %s", e.Operation, e.Cause)
+}
+
+func sanitizeError(operation string, err error) error {
+	if err == nil {
+		return nil
+	}
+
+	errMsg := err.Error()
+	errMsg = strings.ReplaceAll(errMsg, "password=", "password=***")
+
+	if strings.Contains(errMsg, "postgres://") {
+		parts := strings.Split(errMsg, "postgres://")
+		if len(parts) > 1 {
+			connStr := parts[1]
+			if idx := strings.IndexAny(connStr, " \t\n\"'"); idx != -1 {
+				connStr = connStr[:idx]
+			}
+			sanitized := "postgres://***:***@***:****/***"
+			errMsg = strings.ReplaceAll(errMsg, "postgres://"+connStr, sanitized)
+		}
+	}
+
+	return &SanitizedError{
+		Operation: operation,
+		Cause:     errMsg,
+	}
+}
+
 func NewConfig() (*Config, error) {
-	// Try to load .env file, but don't fail if it doesn't exist
-	// This allows the app to work with environment variables only (Docker)
 	var err error
 
 	config := &Config{
@@ -45,43 +96,75 @@ func NewConfig() (*Config, error) {
 }
 
 func initDB() (*sql.DB, error) {
-	dbUser := os.Getenv("POSTGRES_USER")
-	dbPassword := os.Getenv("POSTGRES_PASSWORD")
-	dbName := os.Getenv("POSTGRES_DB")
-	dbHost := getEnv("POSTGRES_HOST", "db")
-	dbPort := getEnv("POSTGRES_PORT", "5432")
-
-	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", dbUser, dbPassword, dbHost, dbPort, dbName)
-
-	db, err := sql.Open("pgx", dsn)
-	if err != nil {
-		return nil, fmt.Errorf("failed to open database connection: %w", err)
+	dbConfig := DatabaseConfig{
+		User:     os.Getenv("POSTGRES_USER"),
+		Password: os.Getenv("POSTGRES_PASSWORD"),
+		Database: os.Getenv("POSTGRES_DB"),
+		Host:     getEnv("POSTGRES_HOST", "db"),
+		Port:     getEnv("POSTGRES_PORT", "5432"),
 	}
+
+	if dbConfig.User == "" || dbConfig.Password == "" || dbConfig.Database == "" {
+		return nil, sanitizeError("configuration validation",
+			fmt.Errorf("missing required database configuration: POSTGRES_USER, POSTGRES_PASSWORD, and POSTGRES_DB must be set"))
+	}
+
+	params := url.Values{}
+	params.Set("sslmode", "disable")
+	params.Set("application_name", "portfolio-webapp")
+
+	actualDSN := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?%s",
+		url.QueryEscape(dbConfig.User),
+		url.QueryEscape(dbConfig.Password),
+		dbConfig.Host,
+		dbConfig.Port,
+		dbConfig.Database,
+		params.Encode())
+
+	db, err := sql.Open("pgx", actualDSN)
+	if err != nil {
+		return nil, sanitizeError("database connection", err)
+	}
+
+	db.SetMaxOpenConns(25)
+	db.SetMaxIdleConns(5)
+	db.SetConnMaxLifetime(5 * time.Minute)
 
 	err = db.Ping()
 	if err != nil {
-		return nil, fmt.Errorf("failed to ping database: %w", err)
+		db.Close()
+		return nil, sanitizeError("database ping", err)
 	}
 
-	log.Println("Successfully connected to PostgreSQL!")
+	log.Printf("Successfully connected to PostgreSQL database: %s@%s:%s/%s",
+		"[USER_REDACTED]", dbConfig.Host, dbConfig.Port, dbConfig.Database)
+
 	return db, nil
 }
 
 func initMinio() (*minio.Client, error) {
-	minioUser := os.Getenv("MINIO_ROOT_USER")
-	minioPassword := os.Getenv("MINIO_ROOT_PASSWORD")
-	minioEndpoint := getEnv("MINIO_ENDPOINT", "minio:9000")
-
-	minioClient, err := minio.New(minioEndpoint, &minio.Options{
-		Creds:  credentials.NewStaticV4(minioUser, minioPassword, ""),
-		Secure: false,
-	})
-	if err != nil {
-		return nil, fmt.Errorf("failed to create MinIO client: %w", err)
+	minioConfig := MinioConfig{
+		AccessKey: os.Getenv("MINIO_ROOT_USER"),
+		SecretKey: os.Getenv("MINIO_ROOT_PASSWORD"),
+		Endpoint:  getEnv("MINIO_ENDPOINT", "minio:9000"),
+		UseSSL:    false,
 	}
 
-	log.Println("Successfully connected to MinIO!")
-	log.Printf("MinIO User: %s", minioUser)
+	if minioConfig.AccessKey == "" || minioConfig.SecretKey == "" {
+		return nil, sanitizeError("minio configuration validation",
+			fmt.Errorf("missing required MinIO configuration: MINIO_ROOT_USER and MINIO_ROOT_PASSWORD must be set"))
+	}
+
+	minioClient, err := minio.New(minioConfig.Endpoint, &minio.Options{
+		Creds:  credentials.NewStaticV4(minioConfig.AccessKey, minioConfig.SecretKey, ""),
+		Secure: minioConfig.UseSSL,
+	})
+	if err != nil {
+		return nil, sanitizeError("minio client creation", err)
+	}
+
+	log.Printf("Successfully connected to MinIO storage: [USER_REDACTED]@%s", minioConfig.Endpoint)
+
 	return minioClient, nil
 }
 
