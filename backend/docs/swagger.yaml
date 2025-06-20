@@ -191,6 +191,33 @@ paths:
       summary: Admin logout
       tags:
       - admin
+  /{adminToken}/admin/refresh:
+    post:
+      description: Refresh access token using refresh token
+      parameters:
+      - description: Admin Token
+        in: path
+        name: adminToken
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SuccessResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Refresh access token
+      tags:
+      - admin
   /api/assets/hero-banner:
     get:
       description: Get the current hero banner image

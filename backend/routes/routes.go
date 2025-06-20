@@ -55,6 +55,8 @@ func setupAdminRoutes(api *gin.RouterGroup, cfg *config.Config, authService *aut
 			adminHandler.Login,
 		)
 
+		adminGroup.POST("/refresh", adminHandler.RefreshToken)
+
 		protected := adminGroup.Group("")
 		protected.Use(middleware.AuthMiddleware(authService, adminRepo))
 		{

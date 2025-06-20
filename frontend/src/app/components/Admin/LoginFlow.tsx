@@ -15,9 +15,14 @@ const LoginFlow = ({ adminToken }: LoginFlowProps) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    if (AuthService.isAuthenticated()) {
-      setIsLoggedIn(true);
-    }
+    const checkAuthStatus = async () => {
+      const isAuth = await AuthService.checkAuthStatus();
+      if (isAuth) {
+        setIsLoggedIn(true);
+      }
+    };
+    
+    checkAuthStatus();
   }, [adminToken]);
 
   const handleLogin = async (e: React.FormEvent) => {

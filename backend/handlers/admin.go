@@ -113,7 +113,7 @@ func (h *AdminHandler) Login(c *gin.Context) {
 		return
 	}
 
-	token, expiresAt, err := h.authService.GenerateToken(admin.ID, admin.Username)
+	tokenPair, err := h.authService.GenerateTokenPair(admin.ID, admin.Username)
 	if err != nil {
 		h.logLoginAttempt(c, false, fmt.Sprintf("Failed to generate token: %v", err))
 		c.JSON(http.StatusInternalServerError, models.ErrorResponse{
@@ -123,7 +123,7 @@ func (h *AdminHandler) Login(c *gin.Context) {
 		return
 	}
 
-	if err := h.adminRepo.UpdateAdminToken(admin.ID, token, expiresAt); err != nil {
+	if err := h.adminRepo.UpdateAdminToken(admin.ID, tokenPair.RefreshToken, tokenPair.RefreshExpiresAt); err != nil {
 		h.logLoginAttempt(c, false, fmt.Sprintf("Failed to update token: %v", err))
 		c.JSON(http.StatusInternalServerError, models.ErrorResponse{
 			Error:   "Internal server error",
@@ -132,11 +132,31 @@ func (h *AdminHandler) Login(c *gin.Context) {
 		return
 	}
 
+	c.SetCookie(
+		"access_token",
+		tokenPair.AccessToken,
+		int(tokenPair.AccessExpiresAt.Sub(time.Now()).Seconds()),
+		"/",
+		"",
+		false,
+		true,
+	)
+
+	c.SetCookie(
+		"refresh_token",
+		tokenPair.RefreshToken,
+		int(tokenPair.RefreshExpiresAt.Sub(time.Now()).Seconds()),
+		"/",
+		"",
+		false,
+		true,
+	)
+
 	h.logLoginAttempt(c, true, "Login successful")
 
 	response := models.LoginResponse{
-		Token:     token,
-		ExpiresAt: expiresAt,
+		Token:     "",
+		ExpiresAt: tokenPair.AccessExpiresAt,
 		User: models.AdminUser{
 			ID:        admin.ID,
 			Username:  admin.Username,
@@ -177,8 +197,97 @@ func (h *AdminHandler) Logout(c *gin.Context) {
 		return
 	}
 
+	c.SetCookie("access_token", "", -1, "/", "", false, true)
+	c.SetCookie("refresh_token", "", -1, "/", "", false, true)
+
 	c.JSON(http.StatusOK, models.SuccessResponse{
 		Message: "Successfully logged out",
+	})
+}
+
+// RefreshToken handles token refresh
+// @Summary Refresh access token
+// @Description Refresh access token using refresh token
+// @Tags admin
+// @Produce json
+// @Param adminToken path string true "Admin Token"
+// @Success 200 {object} models.SuccessResponse
+// @Failure 401 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /{adminToken}/admin/refresh [post]
+func (h *AdminHandler) RefreshToken(c *gin.Context) {
+	refreshToken, err := c.Cookie("refresh_token")
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, models.ErrorResponse{
+			Error:   "Unauthorized",
+			Message: "Refresh token not found",
+		})
+		return
+	}
+
+	claims, err := h.authService.ValidateRefreshToken(refreshToken)
+	if err != nil {
+		c.SetCookie("access_token", "", -1, "/", "", false, true)
+		c.SetCookie("refresh_token", "", -1, "/", "", false, true)
+
+		c.JSON(http.StatusUnauthorized, models.ErrorResponse{
+			Error:   "Unauthorized",
+			Message: "Invalid refresh token",
+		})
+		return
+	}
+
+	admin, err := h.adminRepo.GetAdminByToken(refreshToken)
+	if err != nil || admin == nil {
+		c.SetCookie("access_token", "", -1, "/", "", false, true)
+		c.SetCookie("refresh_token", "", -1, "/", "", false, true)
+
+		c.JSON(http.StatusUnauthorized, models.ErrorResponse{
+			Error:   "Unauthorized",
+			Message: "Refresh token has been revoked",
+		})
+		return
+	}
+
+	tokenPair, err := h.authService.GenerateTokenPair(claims.UserID, claims.Username)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{
+			Error:   "Internal server error",
+			Message: "Failed to generate new tokens",
+		})
+		return
+	}
+
+	if err := h.adminRepo.UpdateAdminToken(claims.UserID, tokenPair.RefreshToken, tokenPair.RefreshExpiresAt); err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{
+			Error:   "Internal server error",
+			Message: "Failed to update tokens",
+		})
+		return
+	}
+
+	c.SetCookie(
+		"access_token",
+		tokenPair.AccessToken,
+		int(tokenPair.AccessExpiresAt.Sub(time.Now()).Seconds()),
+		"/",
+		"",
+		false,
+		true,
+	)
+
+	c.SetCookie(
+		"refresh_token",
+		tokenPair.RefreshToken,
+		int(tokenPair.RefreshExpiresAt.Sub(time.Now()).Seconds()),
+		"/",
+		"",
+		false,
+		true,
+	)
+
+	c.JSON(http.StatusOK, models.SuccessResponse{
+		Message: "Tokens refreshed successfully",
 	})
 }
 

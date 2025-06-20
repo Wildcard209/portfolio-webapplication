@@ -14,9 +14,10 @@ import (
 )
 
 type AuthService struct {
-	jwtSecret   []byte
-	tokenExpiry time.Duration
-	pepper      string
+	jwtSecret          []byte
+	tokenExpiry        time.Duration
+	refreshTokenExpiry time.Duration
+	pepper             string
 }
 
 func NewAuthService(jwtSecret string, tokenExpiry time.Duration) *AuthService {
@@ -26,16 +27,25 @@ func NewAuthService(jwtSecret string, tokenExpiry time.Duration) *AuthService {
 	}
 
 	return &AuthService{
-		jwtSecret:   []byte(jwtSecret),
-		tokenExpiry: tokenExpiry,
-		pepper:      pepper,
+		jwtSecret:          []byte(jwtSecret),
+		tokenExpiry:        tokenExpiry,
+		refreshTokenExpiry: 7 * 24 * time.Hour, // 7 days
+		pepper:             pepper,
 	}
 }
 
 type CustomClaims struct {
-	UserID   int    `json:"user_id"`
-	Username string `json:"username"`
+	UserID    int    `json:"user_id"`
+	Username  string `json:"username"`
+	TokenType string `json:"token_type"` // "access" or "refresh"
 	jwt.RegisteredClaims
+}
+
+type TokenPair struct {
+	AccessToken      string
+	RefreshToken     string
+	AccessExpiresAt  time.Time
+	RefreshExpiresAt time.Time
 }
 
 func (s *AuthService) GenerateSalt() (string, error) {
@@ -80,6 +90,56 @@ func (s *AuthService) VerifyPassword(hashedPassword, password, salt string) erro
 	hashedInput := base64.StdEncoding.EncodeToString(hasher.Sum(nil))
 
 	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(hashedInput))
+}
+
+func (s *AuthService) GenerateTokenPair(userID int, username string) (*TokenPair, error) {
+	accessExpirationTime := time.Now().Add(s.tokenExpiry)
+	refreshExpirationTime := time.Now().Add(s.refreshTokenExpiry)
+
+	// Generate access token
+	accessClaims := &CustomClaims{
+		UserID:    userID,
+		Username:  username,
+		TokenType: "access",
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(accessExpirationTime),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			NotBefore: jwt.NewNumericDate(time.Now()),
+			Subject:   fmt.Sprintf("%d", userID),
+		},
+	}
+
+	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, accessClaims)
+	accessTokenString, err := accessToken.SignedString(s.jwtSecret)
+	if err != nil {
+		return nil, fmt.Errorf("failed to sign access token: %w", err)
+	}
+
+	// Generate refresh token
+	refreshClaims := &CustomClaims{
+		UserID:    userID,
+		Username:  username,
+		TokenType: "refresh",
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(refreshExpirationTime),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			NotBefore: jwt.NewNumericDate(time.Now()),
+			Subject:   fmt.Sprintf("%d", userID),
+		},
+	}
+
+	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, refreshClaims)
+	refreshTokenString, err := refreshToken.SignedString(s.jwtSecret)
+	if err != nil {
+		return nil, fmt.Errorf("failed to sign refresh token: %w", err)
+	}
+
+	return &TokenPair{
+		AccessToken:      accessTokenString,
+		RefreshToken:     refreshTokenString,
+		AccessExpiresAt:  accessExpirationTime,
+		RefreshExpiresAt: refreshExpirationTime,
+	}, nil
 }
 
 func (s *AuthService) GenerateToken(userID int, username string) (string, time.Time, error) {
@@ -127,13 +187,39 @@ func (s *AuthService) ValidateToken(tokenString string) (*CustomClaims, error) {
 	return nil, errors.New("invalid token")
 }
 
-func (s *AuthService) RefreshToken(oldTokenString string) (string, time.Time, error) {
-	claims, err := s.ValidateToken(oldTokenString)
+func (s *AuthService) ValidateAccessToken(tokenString string) (*CustomClaims, error) {
+	claims, err := s.ValidateToken(tokenString)
 	if err != nil {
-		return "", time.Time{}, fmt.Errorf("invalid token for refresh: %w", err)
+		return nil, err
 	}
 
-	return s.GenerateToken(claims.UserID, claims.Username)
+	if claims.TokenType != "access" {
+		return nil, errors.New("invalid token type: expected access token")
+	}
+
+	return claims, nil
+}
+
+func (s *AuthService) ValidateRefreshToken(tokenString string) (*CustomClaims, error) {
+	claims, err := s.ValidateToken(tokenString)
+	if err != nil {
+		return nil, err
+	}
+
+	if claims.TokenType != "refresh" {
+		return nil, errors.New("invalid token type: expected refresh token")
+	}
+
+	return claims, nil
+}
+
+func (s *AuthService) RefreshTokenPair(refreshTokenString string) (*TokenPair, error) {
+	claims, err := s.ValidateRefreshToken(refreshTokenString)
+	if err != nil {
+		return nil, fmt.Errorf("invalid refresh token: %w", err)
+	}
+
+	return s.GenerateTokenPair(claims.UserID, claims.Username)
 }
 
 func (s *AuthService) ExtractTokenFromHeader(authHeader string) (string, error) {

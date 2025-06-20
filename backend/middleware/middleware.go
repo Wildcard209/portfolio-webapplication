@@ -24,28 +24,118 @@ func RateLimitMiddleware(rate limiter.Rate) gin.HandlerFunc {
 
 func AuthMiddleware(authService *auth.AuthService, adminRepo *repository.AdminRepository) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		authHeader := c.GetHeader("Authorization")
-		if authHeader == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header required"})
-			c.Abort()
-			return
+		// Try to get token from cookie first, then fallback to header for backward compatibility
+		var tokenString string
+		var err error
+
+		// Check for access token in cookie
+		accessToken, cookieErr := c.Cookie("access_token")
+		if cookieErr == nil && accessToken != "" {
+			tokenString = accessToken
+		} else {
+			// Fallback to Authorization header
+			authHeader := c.GetHeader("Authorization")
+			if authHeader == "" {
+				c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization token required"})
+				c.Abort()
+				return
+			}
+
+			tokenString, err = authService.ExtractTokenFromHeader(authHeader)
+			if err != nil {
+				c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid authorization header"})
+				c.Abort()
+				return
+			}
 		}
 
-		tokenString, err := authService.ExtractTokenFromHeader(authHeader)
+		// Validate access token
+		claims, err := authService.ValidateAccessToken(tokenString)
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid authorization header"})
-			c.Abort()
+			// If access token is invalid/expired, try to refresh using refresh token
+			refreshToken, refreshErr := c.Cookie("refresh_token")
+			if refreshErr != nil || refreshToken == "" {
+				c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired token"})
+				c.Abort()
+				return
+			}
+
+			// Validate refresh token
+			refreshClaims, refreshValidErr := authService.ValidateRefreshToken(refreshToken)
+			if refreshValidErr != nil {
+				// Clear invalid cookies
+				c.SetCookie("access_token", "", -1, "/", "", false, true)
+				c.SetCookie("refresh_token", "", -1, "/", "", false, true)
+				c.JSON(http.StatusUnauthorized, gin.H{"error": "Session expired, please login again"})
+				c.Abort()
+				return
+			}
+
+			// Check if refresh token is still valid in database
+			admin, adminErr := adminRepo.GetAdminByToken(refreshToken)
+			if adminErr != nil || admin == nil {
+				// Clear invalid cookies
+				c.SetCookie("access_token", "", -1, "/", "", false, true)
+				c.SetCookie("refresh_token", "", -1, "/", "", false, true)
+				c.JSON(http.StatusUnauthorized, gin.H{"error": "Session has been revoked"})
+				c.Abort()
+				return
+			}
+
+			// Generate new token pair
+			tokenPair, tokenErr := authService.GenerateTokenPair(refreshClaims.UserID, refreshClaims.Username)
+			if tokenErr != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to refresh session"})
+				c.Abort()
+				return
+			}
+
+			// Update refresh token in database
+			if updateErr := adminRepo.UpdateAdminToken(refreshClaims.UserID, tokenPair.RefreshToken, tokenPair.RefreshExpiresAt); updateErr != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update session"})
+				c.Abort()
+				return
+			}
+
+			// Set new HTTP-only cookies
+			c.SetCookie(
+				"access_token",
+				tokenPair.AccessToken,
+				int(tokenPair.AccessExpiresAt.Sub(time.Now()).Seconds()),
+				"/",
+				"",
+				false, // Set to true in production with HTTPS
+				true,  // HTTP-only
+			)
+
+			c.SetCookie(
+				"refresh_token",
+				tokenPair.RefreshToken,
+				int(tokenPair.RefreshExpiresAt.Sub(time.Now()).Seconds()),
+				"/",
+				"",
+				false, // Set to true in production with HTTPS
+				true,  // HTTP-only
+			)
+
+			// Use the new access token claims
+			claims = &auth.CustomClaims{
+				UserID:    refreshClaims.UserID,
+				Username:  refreshClaims.Username,
+				TokenType: "access",
+			}
+
+			// Set admin context from database
+			c.Set("userID", claims.UserID)
+			c.Set("username", claims.Username)
+			c.Set("admin", admin)
+
+			c.Next()
 			return
 		}
 
-		claims, err := authService.ValidateToken(tokenString)
-		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired token"})
-			c.Abort()
-			return
-		}
-
-		admin, err := adminRepo.GetAdminByToken(tokenString)
+		// For valid access tokens, verify against database
+		admin, err := adminRepo.GetAdminByID(claims.UserID)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to verify token"})
 			c.Abort()
@@ -53,7 +143,7 @@ func AuthMiddleware(authService *auth.AuthService, adminRepo *repository.AdminRe
 		}
 
 		if admin == nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Token has been revoked"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "User not found"})
 			c.Abort()
 			return
 		}

@@ -4,7 +4,7 @@ interface LoginRequest {
 }
 
 interface LoginResponse {
-  token: string;
+  token: string; // Will be empty now, kept for backward compatibility
   expiresAt: string;
   user: {
     id: number;
@@ -19,21 +19,13 @@ interface ErrorResponse {
 }
 
 export class AuthService {
-  private static readonly TOKEN_KEY = 'auth_token';
   private static readonly USER_KEY = 'auth_user';
 
-  static setAuthData(token: string, user: any): void {
+  // Store only user info in localStorage, no tokens
+  static setUserData(user: any): void {
     if (typeof window !== 'undefined') {
-      localStorage.setItem(this.TOKEN_KEY, token);
       localStorage.setItem(this.USER_KEY, JSON.stringify(user));
     }
-  }
-
-  static getToken(): string | null {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem(this.TOKEN_KEY);
-    }
-    return null;
   }
 
   static getUser(): any | null {
@@ -45,13 +37,28 @@ export class AuthService {
   }
 
   static isAuthenticated(): boolean {
-    const token = this.getToken();
-    if (!token) return false;
+    // Check if user data exists and make a test request to verify session
+    const user = this.getUser();
+    return !!user;
+  }
 
+  static async checkAuthStatus(): Promise<boolean> {
     try {
-      const user = this.getUser();
-      return !!user;
-    } catch {
+      const apiUrl = process.env.NEXT_PUBLIC_BASE_API_URL || 'http://localhost/api';
+      const response = await fetch(`${apiUrl}/admin/refresh`, {
+        method: 'POST',
+        credentials: 'include', // Important for cookies
+      });
+
+      if (response.ok) {
+        return true;
+      } else {
+        // If refresh fails, clear user data
+        this.clearAuthData();
+        return false;
+      }
+    } catch (error) {
+      this.clearAuthData();
       return false;
     }
   }
@@ -64,12 +71,13 @@ export class AuthService {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // Important for cookies
         body: JSON.stringify({ username, password }),
       });
 
       if (response.ok) {
         const data: LoginResponse = await response.json();
-        this.setAuthData(data.token, data.user);
+        this.setUserData(data.user);
         return { success: true };
       } else {
         const errorData: ErrorResponse = await response.json();
@@ -87,20 +95,11 @@ export class AuthService {
   }
 
   static async logout(): Promise<{ success: boolean; error?: string }> {
-    const jwtToken = this.getToken();
-    
-    if (!jwtToken) {
-      this.clearAuthData();
-      return { success: true };
-    }
-
     try {
       const apiUrl = process.env.NEXT_PUBLIC_BASE_API_URL || 'http://localhost/api';
       const response = await fetch(`${apiUrl}/admin/logout`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${jwtToken}`,
-        },
+        credentials: 'include', // Important for cookies
       });
 
       this.clearAuthData();
@@ -119,13 +118,15 @@ export class AuthService {
 
   static clearAuthData(): void {
     if (typeof window !== 'undefined') {
-      localStorage.removeItem(this.TOKEN_KEY);
       localStorage.removeItem(this.USER_KEY);
     }
   }
 
-  static getAuthHeader(): { Authorization: string } | {} {
-    const token = this.getToken();
-    return token ? { Authorization: `Bearer ${token}` } : {};
+  // For API calls that need authentication, no need to manually add headers
+  // The cookies will be automatically included with credentials: 'include'
+  static getRequestOptions(): RequestInit {
+    return {
+      credentials: 'include', // This will include HTTP-only cookies automatically
+    };
   }
 }

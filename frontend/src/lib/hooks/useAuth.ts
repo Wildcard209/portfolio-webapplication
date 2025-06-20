@@ -6,7 +6,6 @@ import { AuthService } from '../auth/authService';
 export interface UseAuthReturn {
   isAuthenticated: boolean;
   user: any | null;
-  token: string | null;
   login: (username: string, password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<{ success: boolean; error?: string }>;
   loading: boolean;
@@ -15,18 +14,15 @@ export interface UseAuthReturn {
 export const useAuth = (): UseAuthReturn => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const checkAuth = () => {
       const authenticated = AuthService.isAuthenticated();
       const currentUser = AuthService.getUser();
-      const currentToken = AuthService.getToken();
 
       setIsAuthenticated(authenticated);
       setUser(currentUser);
-      setToken(currentToken);
       setLoading(false);
     };
 
@@ -44,7 +40,6 @@ export const useAuth = (): UseAuthReturn => {
     if (result.success) {
       setIsAuthenticated(true);
       setUser(AuthService.getUser());
-      setToken(AuthService.getToken());
     }
     
     setLoading(false);
@@ -57,7 +52,6 @@ export const useAuth = (): UseAuthReturn => {
     
     setIsAuthenticated(false);
     setUser(null);
-    setToken(null);
     setLoading(false);
     
     return result;
@@ -66,7 +60,6 @@ export const useAuth = (): UseAuthReturn => {
   return {
     isAuthenticated,
     user,
-    token,
     login,
     logout,
     loading,
