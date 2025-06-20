@@ -57,6 +57,7 @@ services:
       PORT: ${PORT:-8080}
       GIN_MODE: ${GIN_MODE:-debug}
       TEST_MODE: ${TEST_MODE:-false}
+      HTTPS_MODE: ${HTTPS_MODE:-false}
 
 
   db:

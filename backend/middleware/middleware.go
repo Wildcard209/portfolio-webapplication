@@ -64,8 +64,9 @@ func AuthMiddleware(authService *auth.AuthService, adminRepo *repository.AdminRe
 			refreshClaims, refreshValidErr := authService.ValidateRefreshToken(refreshToken)
 			if refreshValidErr != nil {
 				// Clear invalid cookies
-				c.SetCookie("access_token", "", -1, "/", "", false, true)
-				c.SetCookie("refresh_token", "", -1, "/", "", false, true)
+				isHttps := os.Getenv("HTTPS_MODE") == "true"
+				c.SetCookie("access_token", "", -1, "/", "", isHttps, true)
+				c.SetCookie("refresh_token", "", -1, "/", "", isHttps, true)
 				c.JSON(http.StatusUnauthorized, gin.H{"error": "Session expired, please login again"})
 				c.Abort()
 				return
@@ -75,8 +76,9 @@ func AuthMiddleware(authService *auth.AuthService, adminRepo *repository.AdminRe
 			admin, adminErr := adminRepo.GetAdminByToken(refreshToken)
 			if adminErr != nil || admin == nil {
 				// Clear invalid cookies
-				c.SetCookie("access_token", "", -1, "/", "", false, true)
-				c.SetCookie("refresh_token", "", -1, "/", "", false, true)
+				isHttps := os.Getenv("HTTPS_MODE") == "true"
+				c.SetCookie("access_token", "", -1, "/", "", isHttps, true)
+				c.SetCookie("refresh_token", "", -1, "/", "", isHttps, true)
 				c.JSON(http.StatusUnauthorized, gin.H{"error": "Session has been revoked"})
 				c.Abort()
 				return
@@ -98,14 +100,15 @@ func AuthMiddleware(authService *auth.AuthService, adminRepo *repository.AdminRe
 			}
 
 			// Set new HTTP-only cookies
+			isHttps := os.Getenv("HTTPS_MODE") == "true"
 			c.SetCookie(
 				"access_token",
 				tokenPair.AccessToken,
 				int(tokenPair.AccessExpiresAt.Sub(time.Now()).Seconds()),
 				"/",
 				"",
-				false, // Set to true in production with HTTPS
-				true,  // HTTP-only
+				isHttps, // Secure flag - true for HTTPS, false for HTTP
+				true,    // HTTP-only
 			)
 
 			c.SetCookie(
@@ -114,8 +117,8 @@ func AuthMiddleware(authService *auth.AuthService, adminRepo *repository.AdminRe
 				int(tokenPair.RefreshExpiresAt.Sub(time.Now()).Seconds()),
 				"/",
 				"",
-				false, // Set to true in production with HTTPS
-				true,  // HTTP-only
+				isHttps, // Secure flag - true for HTTPS, false for HTTP
+				true,    // HTTP-only
 			)
 
 			// Use the new access token claims

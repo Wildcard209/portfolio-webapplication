@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/Wildcard209/portfolio-webapplication/auth"
@@ -132,14 +133,17 @@ func (h *AdminHandler) Login(c *gin.Context) {
 		return
 	}
 
+	// Set HTTP-only cookies for tokens
+	isHttps := os.Getenv("HTTPS_MODE") == "true"
+
 	c.SetCookie(
 		"access_token",
 		tokenPair.AccessToken,
 		int(tokenPair.AccessExpiresAt.Sub(time.Now()).Seconds()),
 		"/",
 		"",
-		false,
-		true,
+		isHttps, // Secure flag - true for HTTPS, false for HTTP
+		true,    // HTTP-only
 	)
 
 	c.SetCookie(
@@ -148,8 +152,8 @@ func (h *AdminHandler) Login(c *gin.Context) {
 		int(tokenPair.RefreshExpiresAt.Sub(time.Now()).Seconds()),
 		"/",
 		"",
-		false,
-		true,
+		isHttps, // Secure flag - true for HTTPS, false for HTTP
+		true,    // HTTP-only
 	)
 
 	h.logLoginAttempt(c, true, "Login successful")
@@ -197,8 +201,10 @@ func (h *AdminHandler) Logout(c *gin.Context) {
 		return
 	}
 
-	c.SetCookie("access_token", "", -1, "/", "", false, true)
-	c.SetCookie("refresh_token", "", -1, "/", "", false, true)
+	// Clear cookies
+	isHttps := os.Getenv("HTTPS_MODE") == "true"
+	c.SetCookie("access_token", "", -1, "/", "", isHttps, true)
+	c.SetCookie("refresh_token", "", -1, "/", "", isHttps, true)
 
 	c.JSON(http.StatusOK, models.SuccessResponse{
 		Message: "Successfully logged out",
@@ -227,8 +233,10 @@ func (h *AdminHandler) RefreshToken(c *gin.Context) {
 
 	claims, err := h.authService.ValidateRefreshToken(refreshToken)
 	if err != nil {
-		c.SetCookie("access_token", "", -1, "/", "", false, true)
-		c.SetCookie("refresh_token", "", -1, "/", "", false, true)
+		// Clear invalid cookies
+		isHttps := os.Getenv("HTTPS_MODE") == "true"
+		c.SetCookie("access_token", "", -1, "/", "", isHttps, true)
+		c.SetCookie("refresh_token", "", -1, "/", "", isHttps, true)
 
 		c.JSON(http.StatusUnauthorized, models.ErrorResponse{
 			Error:   "Unauthorized",
@@ -239,8 +247,10 @@ func (h *AdminHandler) RefreshToken(c *gin.Context) {
 
 	admin, err := h.adminRepo.GetAdminByToken(refreshToken)
 	if err != nil || admin == nil {
-		c.SetCookie("access_token", "", -1, "/", "", false, true)
-		c.SetCookie("refresh_token", "", -1, "/", "", false, true)
+		// Clear invalid cookies
+		isHttps := os.Getenv("HTTPS_MODE") == "true"
+		c.SetCookie("access_token", "", -1, "/", "", isHttps, true)
+		c.SetCookie("refresh_token", "", -1, "/", "", isHttps, true)
 
 		c.JSON(http.StatusUnauthorized, models.ErrorResponse{
 			Error:   "Unauthorized",
@@ -266,14 +276,16 @@ func (h *AdminHandler) RefreshToken(c *gin.Context) {
 		return
 	}
 
+	// Set new HTTP-only cookies
+	isHttps := os.Getenv("HTTPS_MODE") == "true"
 	c.SetCookie(
 		"access_token",
 		tokenPair.AccessToken,
 		int(tokenPair.AccessExpiresAt.Sub(time.Now()).Seconds()),
 		"/",
 		"",
-		false,
-		true,
+		isHttps, // Secure flag - true for HTTPS, false for HTTP
+		true,    // HTTP-only
 	)
 
 	c.SetCookie(
@@ -282,8 +294,8 @@ func (h *AdminHandler) RefreshToken(c *gin.Context) {
 		int(tokenPair.RefreshExpiresAt.Sub(time.Now()).Seconds()),
 		"/",
 		"",
-		false,
-		true,
+		isHttps, // Secure flag - true for HTTPS, false for HTTP
+		true,    // HTTP-only
 	)
 
 	c.JSON(http.StatusOK, models.SuccessResponse{
