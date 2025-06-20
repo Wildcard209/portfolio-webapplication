@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { AuthService } from "../../../lib/auth/authService";
+import { InputValidator } from "../../../lib/validation/inputValidator";
 
 interface LoginFlowProps {
   adminToken: string;
@@ -13,6 +14,10 @@ const LoginFlow = ({ adminToken }: LoginFlowProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<{
+    username?: string;
+    password?: string;
+  }>({});
 
   useEffect(() => {
     const checkAuthStatus = async () => {
@@ -25,20 +30,66 @@ const LoginFlow = ({ adminToken }: LoginFlowProps) => {
     checkAuthStatus();
   }, [adminToken]);
 
+  const validateInputs = (): boolean => {
+    const errors: { username?: string; password?: string } = {};
+
+    const usernameValidation = InputValidator.validateUsername(username);
+    if (!usernameValidation.isValid) {
+      errors.username = usernameValidation.error;
+    }
+
+    const passwordValidation = InputValidator.validateString(password, "Password", {
+      required: true,
+      minLength: 1,
+      maxLength: 128
+    });
+    if (!passwordValidation.isValid) {
+      errors.password = passwordValidation.error;
+    }
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleInputChange = (field: 'username' | 'password', value: string) => {
+    const sanitizedValue = InputValidator.sanitizeInput(value);
+    
+    if (field === 'username') {
+      setUsername(sanitizedValue);
+      if (validationErrors.username) {
+        setValidationErrors(prev => ({ ...prev, username: undefined }));
+      }
+    } else {
+      setPassword(value);
+      if (validationErrors.password) {
+        setValidationErrors(prev => ({ ...prev, password: undefined }));
+      }
+    }
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
     setError("");
 
-    const result = await AuthService.login(username, password);
-    
-    if (result.success) {
-      setIsLoggedIn(true);
-    } else {
-      setError(result.error || "Login failed");
+    if (!validateInputs()) {
+      return;
     }
-    
-    setIsLoading(false);
+
+    setIsLoading(true);
+
+    try {
+      const result = await AuthService.login(username, password);
+      
+      if (result.success) {
+        setIsLoggedIn(true);
+      } else {
+        setError(result.error || "Login failed");
+      }
+    } catch (error) {
+      setError("An unexpected error occurred. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleLogout = async () => {
@@ -101,17 +152,26 @@ const LoginFlow = ({ adminToken }: LoginFlowProps) => {
           <input
             type="text"
             value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            onChange={(e) => handleInputChange('username', e.target.value)}
             required
             disabled={isLoading}
             style={{
               width: "100%",
               padding: "8px",
-              border: "1px solid #ccc",
+              border: `1px solid ${validationErrors.username ? '#dc3545' : '#ccc'}`,
               borderRadius: "4px",
               fontSize: "16px"
             }}
           />
+          {validationErrors.username && (
+            <div style={{
+              color: "#dc3545",
+              fontSize: "12px",
+              marginTop: "5px"
+            }}>
+              {validationErrors.username}
+            </div>
+          )}
         </div>
 
         <div style={{ marginBottom: "20px" }}>
@@ -121,17 +181,26 @@ const LoginFlow = ({ adminToken }: LoginFlowProps) => {
           <input
             type="password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => handleInputChange('password', e.target.value)}
             required
             disabled={isLoading}
             style={{
               width: "100%",
               padding: "8px",
-              border: "1px solid #ccc",
+              border: `1px solid ${validationErrors.password ? '#dc3545' : '#ccc'}`,
               borderRadius: "4px",
               fontSize: "16px"
             }}
           />
+          {validationErrors.password && (
+            <div style={{
+              color: "#dc3545",
+              fontSize: "12px",
+              marginTop: "5px"
+            }}>
+              {validationErrors.password}
+            </div>
+          )}
         </div>
 
         <button 

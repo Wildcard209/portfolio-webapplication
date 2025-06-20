@@ -9,6 +9,7 @@ import (
 	"github.com/Wildcard209/portfolio-webapplication/auth"
 	"github.com/Wildcard209/portfolio-webapplication/models"
 	"github.com/Wildcard209/portfolio-webapplication/repository"
+	"github.com/Wildcard209/portfolio-webapplication/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/ulule/limiter/v3"
 )
@@ -17,6 +18,7 @@ type AdminHandler struct {
 	authService         *auth.AuthService
 	adminRepo           *repository.AdminRepository
 	loginAttemptRepo    *repository.LoginAttemptRepository
+	inputSanitizer      *utils.InputSanitizer
 	maxFailedAttempts   int
 	lockoutDuration     time.Duration
 	failedAttemptWindow time.Duration
@@ -31,6 +33,7 @@ func NewAdminHandler(
 		authService:         authService,
 		adminRepo:           adminRepo,
 		loginAttemptRepo:    loginAttemptRepo,
+		inputSanitizer:      utils.NewInputSanitizer(1000), // Max 1000 chars for general input
 		maxFailedAttempts:   5,
 		lockoutDuration:     15 * time.Minute,
 		failedAttemptWindow: 5 * time.Minute,
@@ -61,6 +64,26 @@ func (h *AdminHandler) Login(c *gin.Context) {
 		})
 		return
 	}
+
+	if err := h.inputSanitizer.ValidateUsername(req.Username); err != nil {
+		h.logLoginAttempt(c, false, fmt.Sprintf("Invalid username: %v", err))
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{
+			Error:   "Invalid input",
+			Message: "Username " + err.(*utils.ValidationError).Message,
+		})
+		return
+	}
+
+	if err := h.inputSanitizer.ValidateString(req.Password, "password", 1, 128); err != nil {
+		h.logLoginAttempt(c, false, fmt.Sprintf("Invalid password: %v", err))
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{
+			Error:   "Invalid input",
+			Message: "Password " + err.(*utils.ValidationError).Message,
+		})
+		return
+	}
+
+	req.Username = h.inputSanitizer.SanitizeUsername(req.Username)
 
 	clientIP := c.ClientIP()
 

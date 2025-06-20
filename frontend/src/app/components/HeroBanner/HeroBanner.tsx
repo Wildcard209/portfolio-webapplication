@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useApi, useAdminApiFileUpload } from "@/lib/api/hooks/useApi";
 import { ApiHandler } from "@/lib/api/apiHandler";
+import { FileValidator } from "@/lib/validation/fileValidator";
 import styles from "./HeroBanner.module.scss";
 
 export default function HeroBanner() {
@@ -25,29 +26,40 @@ export default function HeroBanner() {
   const [previewUrl, setPreviewUrl] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Get the background image URL using ApiHandler when hero banner is available
   const backgroundImage = assetInfo?.hero_banner_available 
     ? ApiHandler.getAssetUrl('/assets/hero-banner')
     : "";
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      if (!file.type.startsWith('image/')) {
-        alert('Please select an image file');
-        return;
-      }
+    if (!file) return;
 
-      if (file.size > 10 * 1024 * 1024) {
-        alert('File size must be less than 10MB');
-        return;
-      }
+    const validationResult = FileValidator.validateFile(file, {
+      maxSize: 10 * 1024 * 1024,
+      allowedTypes: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
+      maxNameLength: 255
+    });
 
-      setSelectedFile(file);
-      
-      const preview = URL.createObjectURL(file);
-      setPreviewUrl(preview);
+    if (!validationResult.isValid) {
+      alert(`File validation failed: ${validationResult.error}`);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+      return;
     }
+
+    if (!FileValidator.isImageFile(file)) {
+      alert('Please select an image file');
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+      return;
+    }
+
+    setSelectedFile(file);
+    
+    const preview = URL.createObjectURL(file);
+    setPreviewUrl(preview);
   };
 
   const handleUpload = async () => {

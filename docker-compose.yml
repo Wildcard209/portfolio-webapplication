@@ -50,15 +50,18 @@ services:
       ADMIN_USER: ${ADMIN_USER:-}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
       
+      # Input Validation Configuration
+      MAX_FILE_SIZE: ${MAX_FILE_SIZE:-10485760}  # 10MB default
+      MAX_REQUEST_BODY_SIZE: ${MAX_REQUEST_BODY_SIZE:-1048576}  # 1MB default
+      MAX_FILENAME_LENGTH: ${MAX_FILENAME_LENGTH:-255}
+      
       # CORS Configuration
-      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000}
       
       # Application Configuration
-      PORT: ${PORT:-8080}
       GIN_MODE: ${GIN_MODE:-debug}
-      TEST_MODE: ${TEST_MODE:-false}
+      API_DOMAIN: ${API_DOMAIN:-http://localhost}
       HTTPS_MODE: ${HTTPS_MODE:-false}
-
 
   db:
     image: postgres:latest

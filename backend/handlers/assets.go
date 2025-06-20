@@ -2,9 +2,12 @@ package handlers
 
 import (
 	"net/http"
+	"os"
+	"strconv"
 
 	"github.com/Wildcard209/portfolio-webapplication/models"
 	"github.com/Wildcard209/portfolio-webapplication/services"
+	"github.com/Wildcard209/portfolio-webapplication/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -58,7 +61,6 @@ func (h *AssetHandler) GetHeroBanner(c *gin.Context) {
 // @Failure 500 {object} models.ErrorResponse
 // @Router /{adminToken}/admin/assets/hero-banner [post]
 func (h *AssetHandler) UploadHeroBanner(c *gin.Context) {
-	// Get the uploaded file
 	file, header, err := c.Request.FormFile("file")
 	if err != nil {
 		c.JSON(http.StatusBadRequest, models.ErrorResponse{
@@ -69,27 +71,23 @@ func (h *AssetHandler) UploadHeroBanner(c *gin.Context) {
 	}
 	defer file.Close()
 
-	// Check file size (limit to 10MB)
-	const maxFileSize = 10 << 20 // 10MB
-	if header.Size > maxFileSize {
-		c.JSON(http.StatusRequestEntityTooLarge, models.ErrorResponse{
-			Error:   "File too large",
-			Message: "File size must be less than 10MB",
-		})
-		return
-	}
+	maxFileSize := getMaxFileSize()
 
-	// Check file type
-	contentType := header.Header.Get("Content-Type")
-	if !isValidImageType(contentType) {
+	allowedTypes := []string{"image/jpeg", "image/png", "image/gif", "image/webp"}
+	fileValidator := utils.NewFileValidator(maxFileSize, 255, allowedTypes)
+
+	if err := fileValidator.ValidateFile(file, header); err != nil {
 		c.JSON(http.StatusBadRequest, models.ErrorResponse{
-			Error:   "Invalid file type",
-			Message: "Only JPEG, PNG, GIF, and WebP images are allowed",
+			Error:   "File validation failed",
+			Message: err.Error(),
 		})
 		return
 	}
 
-	// Upload the file
+	sanitizedFilename := utils.SanitizeFilename(header.Filename)
+
+	header.Filename = sanitizedFilename
+
 	err = h.assetService.UploadHeroBanner(file, header)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, models.ErrorResponse{
@@ -135,4 +133,16 @@ func isValidImageType(contentType string) bool {
 		}
 	}
 	return false
+}
+
+func getMaxFileSize() int64 {
+	defaultSize := int64(10 << 20)
+
+	if sizeStr := os.Getenv("MAX_FILE_SIZE"); sizeStr != "" {
+		if size, err := strconv.ParseInt(sizeStr, 10, 64); err == nil && size > 0 {
+			return size
+		}
+	}
+
+	return defaultSize
 }

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -24,16 +25,13 @@ func RateLimitMiddleware(rate limiter.Rate) gin.HandlerFunc {
 
 func AuthMiddleware(authService *auth.AuthService, adminRepo *repository.AdminRepository) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// Try to get token from cookie first, then fallback to header for backward compatibility
 		var tokenString string
 		var err error
 
-		// Check for access token in cookie
 		accessToken, cookieErr := c.Cookie("access_token")
 		if cookieErr == nil && accessToken != "" {
 			tokenString = accessToken
 		} else {
-			// Fallback to Authorization header
 			authHeader := c.GetHeader("Authorization")
 			if authHeader == "" {
 				c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization token required"})
@@ -49,10 +47,8 @@ func AuthMiddleware(authService *auth.AuthService, adminRepo *repository.AdminRe
 			}
 		}
 
-		// Validate access token
 		claims, err := authService.ValidateAccessToken(tokenString)
 		if err != nil {
-			// If access token is invalid/expired, try to refresh using refresh token
 			refreshToken, refreshErr := c.Cookie("refresh_token")
 			if refreshErr != nil || refreshToken == "" {
 				c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired token"})
@@ -60,10 +56,8 @@ func AuthMiddleware(authService *auth.AuthService, adminRepo *repository.AdminRe
 				return
 			}
 
-			// Validate refresh token
 			refreshClaims, refreshValidErr := authService.ValidateRefreshToken(refreshToken)
 			if refreshValidErr != nil {
-				// Clear invalid cookies
 				isHttps := os.Getenv("HTTPS_MODE") == "true"
 				c.SetCookie("access_token", "", -1, "/", "", isHttps, true)
 				c.SetCookie("refresh_token", "", -1, "/", "", isHttps, true)
@@ -72,10 +66,8 @@ func AuthMiddleware(authService *auth.AuthService, adminRepo *repository.AdminRe
 				return
 			}
 
-			// Check if refresh token is still valid in database
 			admin, adminErr := adminRepo.GetAdminByToken(refreshToken)
 			if adminErr != nil || admin == nil {
-				// Clear invalid cookies
 				isHttps := os.Getenv("HTTPS_MODE") == "true"
 				c.SetCookie("access_token", "", -1, "/", "", isHttps, true)
 				c.SetCookie("refresh_token", "", -1, "/", "", isHttps, true)
@@ -84,7 +76,6 @@ func AuthMiddleware(authService *auth.AuthService, adminRepo *repository.AdminRe
 				return
 			}
 
-			// Generate new token pair
 			tokenPair, tokenErr := authService.GenerateTokenPair(refreshClaims.UserID, refreshClaims.Username)
 			if tokenErr != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to refresh session"})
@@ -92,14 +83,12 @@ func AuthMiddleware(authService *auth.AuthService, adminRepo *repository.AdminRe
 				return
 			}
 
-			// Update refresh token in database
 			if updateErr := adminRepo.UpdateAdminToken(refreshClaims.UserID, tokenPair.RefreshToken, tokenPair.RefreshExpiresAt); updateErr != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update session"})
 				c.Abort()
 				return
 			}
 
-			// Set new HTTP-only cookies
 			isHttps := os.Getenv("HTTPS_MODE") == "true"
 			c.SetCookie(
 				"access_token",
@@ -107,8 +96,8 @@ func AuthMiddleware(authService *auth.AuthService, adminRepo *repository.AdminRe
 				int(tokenPair.AccessExpiresAt.Sub(time.Now()).Seconds()),
 				"/",
 				"",
-				isHttps, // Secure flag - true for HTTPS, false for HTTP
-				true,    // HTTP-only
+				isHttps,
+				true,
 			)
 
 			c.SetCookie(
@@ -117,18 +106,16 @@ func AuthMiddleware(authService *auth.AuthService, adminRepo *repository.AdminRe
 				int(tokenPair.RefreshExpiresAt.Sub(time.Now()).Seconds()),
 				"/",
 				"",
-				isHttps, // Secure flag - true for HTTPS, false for HTTP
-				true,    // HTTP-only
+				isHttps,
+				true,
 			)
 
-			// Use the new access token claims
 			claims = &auth.CustomClaims{
 				UserID:    refreshClaims.UserID,
 				Username:  refreshClaims.Username,
 				TokenType: "access",
 			}
 
-			// Set admin context from database
 			c.Set("userID", claims.UserID)
 			c.Set("username", claims.Username)
 			c.Set("admin", admin)
@@ -137,7 +124,6 @@ func AuthMiddleware(authService *auth.AuthService, adminRepo *repository.AdminRe
 			return
 		}
 
-		// For valid access tokens, verify against database
 		admin, err := adminRepo.GetAdminByID(claims.UserID)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to verify token"})
@@ -172,13 +158,11 @@ func SecurityHeadersMiddleware() gin.HandlerFunc {
 }
 
 func CORSMiddleware() gin.HandlerFunc {
-	// Define allowed origins from environment variables with secure defaults
 	allowedOrigins := getAllowedOrigins()
 
 	return func(c *gin.Context) {
 		origin := c.Request.Header.Get("Origin")
 
-		// Check if the origin is in our allowed list
 		isOriginAllowed := false
 		for _, allowedOrigin := range allowedOrigins {
 			if origin == allowedOrigin {
@@ -187,18 +171,16 @@ func CORSMiddleware() gin.HandlerFunc {
 			}
 		}
 
-		// Only set CORS headers if origin is allowed
 		if isOriginAllowed {
 			c.Header("Access-Control-Allow-Origin", origin)
 			c.Header("Access-Control-Allow-Credentials", "true")
 		} else {
-			// Log suspicious requests for monitoring
 			fmt.Printf("SECURITY WARNING: Blocked CORS request from unauthorized origin: %s\n", origin)
 		}
 
 		c.Header("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, Cache-Control, X-Requested-With")
 		c.Header("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE")
-		c.Header("Access-Control-Max-Age", "86400") // Cache preflight for 24 hours
+		c.Header("Access-Control-Max-Age", "86400")
 
 		if c.Request.Method == "OPTIONS" {
 			if isOriginAllowed {
@@ -213,15 +195,11 @@ func CORSMiddleware() gin.HandlerFunc {
 	}
 }
 
-// getAllowedOrigins returns the list of allowed origins from environment variables
 func getAllowedOrigins() []string {
-	// Default allowed origins for development and production
 	defaultOrigins := []string{
-		"http://localhost:3000", // Local development
-		"http://localhost",      // Local with nginx
+		"http://localhost",
 	}
 
-	// Get additional allowed origins from environment variable
 	envOrigins := os.Getenv("ALLOWED_ORIGINS")
 	if envOrigins != "" {
 		// Split by comma and trim whitespace
@@ -265,4 +243,53 @@ func ValidateContentTypeMiddleware() gin.HandlerFunc {
 		}
 		c.Next()
 	}
+}
+
+func RequestBodySizeLimitMiddleware(maxSize int64) gin.HandlerFunc {
+	return gin.HandlerFunc(func(c *gin.Context) {
+		if c.Request.Method == "GET" || c.Request.Method == "DELETE" {
+			c.Next()
+			return
+		}
+
+		c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, maxSize)
+
+		c.Next()
+	})
+}
+
+func FileUploadSizeLimitMiddleware(maxSize int64) gin.HandlerFunc {
+	return gin.HandlerFunc(func(c *gin.Context) {
+		contentType := c.GetHeader("Content-Type")
+
+		if strings.Contains(contentType, "multipart/form-data") {
+			c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, maxSize)
+		}
+
+		c.Next()
+	})
+}
+
+func GetRequestBodySizeLimit() int64 {
+	defaultSize := int64(1 << 20)
+
+	if sizeStr := os.Getenv("MAX_REQUEST_BODY_SIZE"); sizeStr != "" {
+		if size, err := strconv.ParseInt(sizeStr, 10, 64); err == nil && size > 0 {
+			return size
+		}
+	}
+
+	return defaultSize
+}
+
+func GetFileUploadSizeLimit() int64 {
+	defaultSize := int64(10 << 20)
+
+	if sizeStr := os.Getenv("MAX_FILE_SIZE"); sizeStr != "" {
+		if size, err := strconv.ParseInt(sizeStr, 10, 64); err == nil && size > 0 {
+			return size
+		}
+	}
+
+	return defaultSize
 }

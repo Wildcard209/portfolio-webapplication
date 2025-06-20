@@ -16,11 +16,11 @@ import (
 )
 
 func SetupRoutes(r *gin.Engine, cfg *config.Config, authService *auth.AuthService) {
-	// Apply secure CORS middleware
 	r.Use(middleware.CORSMiddleware())
 
-	// Apply security headers middleware
 	r.Use(middleware.SecurityHeadersMiddleware())
+
+	r.Use(middleware.RequestBodySizeLimitMiddleware(middleware.GetRequestBodySizeLimit()))
 
 	r.Use(middleware.LoggingMiddleware())
 
@@ -30,7 +30,6 @@ func SetupRoutes(r *gin.Engine, cfg *config.Config, authService *auth.AuthServic
 
 		api.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-		// Asset routes (public access)
 		if cfg.MinioClient != nil {
 			setupAssetRoutes(api, cfg)
 		}
@@ -69,7 +68,6 @@ func setupAssetRoutes(api *gin.RouterGroup, cfg *config.Config) {
 	assetService := services.NewAssetService(cfg.MinioClient)
 	assetHandler := handlers.NewAssetHandler(assetService)
 
-	// Public asset routes
 	assetsGroup := api.Group("/assets")
 	{
 		assetsGroup.GET("/hero-banner", assetHandler.GetHeroBanner)
@@ -84,6 +82,7 @@ func setupAssetRoutes(api *gin.RouterGroup, cfg *config.Config) {
 
 		protected := adminAssetGroup.Group("")
 		protected.Use(middleware.AuthMiddleware(authService, adminRepo))
+		protected.Use(middleware.FileUploadSizeLimitMiddleware(middleware.GetFileUploadSizeLimit()))
 		{
 			protected.POST("/hero-banner", assetHandler.UploadHeroBanner)
 		}
