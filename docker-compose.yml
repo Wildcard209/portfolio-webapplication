@@ -46,6 +46,11 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       PASSWORD_PEPPER: ${PASSWORD_PEPPER}
       
+      # Security Headers Configuration
+      HSTS_MAX_AGE: ${HSTS_MAX_AGE:-31536000}
+      CSP_MODE: ${CSP_MODE:-development}
+      SECURITY_HEADERS_ENABLED: ${SECURITY_HEADERS_ENABLED:-true}
+      
       # Admin User Configuration (optional)
       ADMIN_USER: ${ADMIN_USER:-}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}

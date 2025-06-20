@@ -18,7 +18,7 @@ import (
 func SetupRoutes(r *gin.Engine, cfg *config.Config, authService *auth.AuthService) {
 	r.Use(middleware.CORSMiddleware())
 
-	r.Use(middleware.SecurityHeadersMiddleware())
+	r.Use(middleware.SecurityHeadersMiddleware(cfg))
 
 	r.Use(middleware.RequestBodySizeLimitMiddleware(middleware.GetRequestBodySizeLimit()))
 
@@ -32,6 +32,10 @@ func SetupRoutes(r *gin.Engine, cfg *config.Config, authService *auth.AuthServic
 			middleware.RateLimitMiddlewareWithConfig(middleware.RateLimitPublic, cfg.RateLimit),
 			handlers.Hello,
 		)
+
+		api.POST("/csp-report", handlers.CSPReportHandler)
+
+		api.GET("/health", handlers.HealthCheckHandler)
 
 		api.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 

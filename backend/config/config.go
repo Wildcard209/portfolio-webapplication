@@ -15,10 +15,11 @@ import (
 )
 
 type Config struct {
-	DB          *sql.DB
-	MinioClient *minio.Client
-	Port        string
-	RateLimit   *EnhancedRateLimitConfig
+	DB              *sql.DB
+	MinioClient     *minio.Client
+	Port            string
+	RateLimit       *EnhancedRateLimitConfig
+	SecurityHeaders *SecurityHeadersConfig
 }
 
 type DatabaseConfig struct {
@@ -40,6 +41,13 @@ type RateLimitConfig struct {
 	Enabled bool
 	Limit   int
 	Window  time.Duration
+}
+
+type SecurityHeadersConfig struct {
+	Enabled    bool
+	HTTPSMode  bool
+	HSTSMaxAge int
+	CSPMode    string
 }
 
 type SanitizedError struct {
@@ -81,7 +89,8 @@ func NewConfig() (*Config, error) {
 	var err error
 
 	config := &Config{
-		Port: getEnv("PORT", "8080"),
+		Port:            getEnv("PORT", "8080"),
+		SecurityHeaders: initSecurityHeaders(),
 	}
 
 	if os.Getenv("TEST_MODE") == "true" {
@@ -180,6 +189,23 @@ func getEnv(key, defaultValue string) string {
 		return value
 	}
 	return defaultValue
+}
+
+func initSecurityHeaders() *SecurityHeadersConfig {
+	return &SecurityHeadersConfig{
+		Enabled:    getEnvBool("SECURITY_HEADERS_ENABLED", true),
+		HTTPSMode:  getEnvBool("HTTPS_MODE", false),
+		HSTSMaxAge: getEnvInt("HSTS_MAX_AGE", 31536000),
+		CSPMode:    getEnv("CSP_MODE", "development"),
+	}
+}
+
+func getEnvBool(key string, defaultValue bool) bool {
+	value := os.Getenv(key)
+	if value == "" {
+		return defaultValue
+	}
+	return value == "true" || value == "1" || value == "yes"
 }
 
 func (c *Config) Close() error {

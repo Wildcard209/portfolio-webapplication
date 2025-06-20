@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/Wildcard209/portfolio-webapplication/auth"
+	"github.com/Wildcard209/portfolio-webapplication/config"
 	"github.com/Wildcard209/portfolio-webapplication/repository"
 	"github.com/gin-gonic/gin"
 	"github.com/ulule/limiter/v3"
@@ -145,15 +146,78 @@ func AuthMiddleware(authService *auth.AuthService, adminRepo *repository.AdminRe
 	}
 }
 
-func SecurityHeadersMiddleware() gin.HandlerFunc {
+func SecurityHeadersMiddleware(cfg *config.Config) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		if !cfg.SecurityHeaders.Enabled {
+			c.Next()
+			return
+		}
+
 		c.Header("X-Content-Type-Options", "nosniff")
 		c.Header("X-Frame-Options", "DENY")
 		c.Header("X-XSS-Protection", "1; mode=block")
 		c.Header("Referrer-Policy", "strict-origin-when-cross-origin")
-		c.Header("Content-Security-Policy", "default-src 'self'")
+
+		c.Header("Permissions-Policy", "camera=(), microphone=(), geolocation=(), payment=()")
+
+		c.Header("Cross-Origin-Embedder-Policy", "require-corp")
+		c.Header("Cross-Origin-Opener-Policy", "same-origin")
+
+		if cfg.SecurityHeaders.HTTPSMode {
+			hstsValue := fmt.Sprintf("max-age=%d; includeSubDomains", cfg.SecurityHeaders.HSTSMaxAge)
+			c.Header("Strict-Transport-Security", hstsValue)
+		}
+
+		cspPolicy := generateCSPPolicy(cfg.SecurityHeaders.CSPMode)
+		c.Header("Content-Security-Policy", cspPolicy)
 
 		c.Next()
+	}
+}
+
+func generateCSPPolicy(mode string) string {
+	reportURI := " report-uri /api/csp-report"
+
+	switch mode {
+	case "production":
+		return "default-src 'self'; " +
+			"script-src 'self' 'unsafe-inline'; " +
+			"style-src 'self' 'unsafe-inline'; " +
+			"img-src 'self' data: https:; " +
+			"font-src 'self' https:; " +
+			"connect-src 'self'; " +
+			"media-src 'self'; " +
+			"object-src 'none'; " +
+			"base-uri 'self'; " +
+			"form-action 'self'; " +
+			"frame-ancestors 'none';" +
+			reportURI
+	case "development":
+		return "default-src 'self'; " +
+			"script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
+			"style-src 'self' 'unsafe-inline'; " +
+			"img-src 'self' data: https: http:; " +
+			"font-src 'self' https: http:; " +
+			"connect-src 'self' ws: wss:; " +
+			"media-src 'self'; " +
+			"object-src 'none'; " +
+			"base-uri 'self'; " +
+			"form-action 'self'; " +
+			"frame-ancestors 'none';" +
+			reportURI
+	default:
+		return "default-src 'self'; " +
+			"script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
+			"style-src 'self' 'unsafe-inline'; " +
+			"img-src 'self' data: https: http:; " +
+			"font-src 'self' https: http:; " +
+			"connect-src 'self' ws: wss:; " +
+			"media-src 'self'; " +
+			"object-src 'none'; " +
+			"base-uri 'self'; " +
+			"form-action 'self'; " +
+			"frame-ancestors 'none';" +
+			reportURI
 	}
 }
 
