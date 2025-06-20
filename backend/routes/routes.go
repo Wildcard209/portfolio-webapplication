@@ -24,9 +24,14 @@ func SetupRoutes(r *gin.Engine, cfg *config.Config, authService *auth.AuthServic
 
 	r.Use(middleware.LoggingMiddleware())
 
+	r.Use(middleware.RateLimitViolationMiddleware())
+
 	api := r.Group("/api")
 	{
-		api.GET("/test", handlers.Hello)
+		api.GET("/test",
+			middleware.RateLimitMiddlewareWithConfig(middleware.RateLimitPublic, cfg.RateLimit),
+			handlers.Hello,
+		)
 
 		api.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
@@ -49,17 +54,23 @@ func setupAdminRoutes(api *gin.RouterGroup, cfg *config.Config, authService *aut
 	adminGroup := api.Group("/admin")
 	{
 		adminGroup.POST("/login",
-			middleware.RateLimitMiddleware(handlers.GetRateLimiterForLogin()),
+			middleware.RateLimitMiddlewareWithConfig(middleware.RateLimitLogin, cfg.RateLimit),
 			middleware.ValidateContentTypeMiddleware(),
 			adminHandler.Login,
 		)
 
-		adminGroup.POST("/refresh", adminHandler.RefreshToken)
+		adminGroup.POST("/refresh",
+			middleware.RateLimitMiddlewareWithConfig(middleware.RateLimitRefresh, cfg.RateLimit),
+			adminHandler.RefreshToken,
+		)
 
 		protected := adminGroup.Group("")
 		protected.Use(middleware.AuthMiddleware(authService, adminRepo))
 		{
-			protected.POST("/logout", adminHandler.Logout)
+			protected.POST("/logout",
+				middleware.RateLimitMiddlewareWithConfig(middleware.RateLimitAdmin, cfg.RateLimit),
+				adminHandler.Logout,
+			)
 		}
 	}
 }
@@ -70,8 +81,14 @@ func setupAssetRoutes(api *gin.RouterGroup, cfg *config.Config) {
 
 	assetsGroup := api.Group("/assets")
 	{
-		assetsGroup.GET("/hero-banner", assetHandler.GetHeroBanner)
-		assetsGroup.GET("/info", assetHandler.GetAssetInfo)
+		assetsGroup.GET("/hero-banner",
+			middleware.RateLimitMiddlewareWithConfig(middleware.RateLimitPublic, cfg.RateLimit),
+			assetHandler.GetHeroBanner,
+		)
+		assetsGroup.GET("/info",
+			middleware.RateLimitMiddlewareWithConfig(middleware.RateLimitPublic, cfg.RateLimit),
+			assetHandler.GetAssetInfo,
+		)
 	}
 
 	adminAssetGroup := api.Group("/admin/assets")
@@ -84,7 +101,10 @@ func setupAssetRoutes(api *gin.RouterGroup, cfg *config.Config) {
 		protected.Use(middleware.AuthMiddleware(authService, adminRepo))
 		protected.Use(middleware.FileUploadSizeLimitMiddleware(middleware.GetFileUploadSizeLimit()))
 		{
-			protected.POST("/hero-banner", assetHandler.UploadHeroBanner)
+			protected.POST("/hero-banner",
+				middleware.RateLimitMiddlewareWithConfig(middleware.RateLimitUpload, cfg.RateLimit),
+				assetHandler.UploadHeroBanner,
+			)
 		}
 	}
 }

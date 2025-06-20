@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"log"
 	"strings"
 	"time"
@@ -83,4 +84,21 @@ func (sl *SecurityLogger) LogSecureInfo(message string) {
 func (sl *SecurityLogger) LogSecureWarning(message string) {
 	sanitized := sl.SanitizeLogMessage(message)
 	sl.logger.Printf("[SECURE_WARNING] %s", sanitized)
+}
+
+func (sl *SecurityLogger) LogSecurityEvent(event string, details map[string]interface{}) {
+	timestamp := time.Now().UTC().Format(time.RFC3339)
+
+	message := "SECURITY_EVENT: " + event + " at " + timestamp
+
+	for key, value := range details {
+		if valueStr, ok := value.(string); ok {
+			sanitizedValue := sl.SanitizeLogMessage(valueStr)
+			message += " " + key + "=" + sanitizedValue
+		} else {
+			message += " " + key + "=" + sl.SanitizeLogMessage(fmt.Sprintf("%v", value))
+		}
+	}
+
+	sl.logger.Printf("[SECURITY_AUDIT] %s", message)
 }

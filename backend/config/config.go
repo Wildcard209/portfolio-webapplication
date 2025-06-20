@@ -18,6 +18,7 @@ type Config struct {
 	DB          *sql.DB
 	MinioClient *minio.Client
 	Port        string
+	RateLimit   *EnhancedRateLimitConfig
 }
 
 type DatabaseConfig struct {
@@ -33,6 +34,12 @@ type MinioConfig struct {
 	AccessKey string
 	SecretKey string
 	UseSSL    bool
+}
+
+type RateLimitConfig struct {
+	Enabled bool
+	Limit   int
+	Window  time.Duration
 }
 
 type SanitizedError struct {

@@ -11,7 +11,6 @@ import (
 	"github.com/Wildcard209/portfolio-webapplication/repository"
 	"github.com/Wildcard209/portfolio-webapplication/utils"
 	"github.com/gin-gonic/gin"
-	"github.com/ulule/limiter/v3"
 )
 
 type AdminHandler struct {
@@ -33,7 +32,7 @@ func NewAdminHandler(
 		authService:         authService,
 		adminRepo:           adminRepo,
 		loginAttemptRepo:    loginAttemptRepo,
-		inputSanitizer:      utils.NewInputSanitizer(1000), // Max 1000 chars for general input
+		inputSanitizer:      utils.NewInputSanitizer(1000),
 		maxFailedAttempts:   5,
 		lockoutDuration:     15 * time.Minute,
 		failedAttemptWindow: 5 * time.Minute,
@@ -342,11 +341,4 @@ func (h *AdminHandler) logLoginAttempt(c *gin.Context, success bool, details str
 			fmt.Printf("Failed to log login attempt: %v\n", err)
 		}
 	}()
-}
-
-func GetRateLimiterForLogin() limiter.Rate {
-	return limiter.Rate{
-		Period: 1 * time.Minute,
-		Limit:  5,
-	}
 }

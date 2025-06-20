@@ -73,6 +73,8 @@ func main() {
 
 	authService := auth.NewAuthService(jwtSecret, 1*time.Hour)
 
+	cfg.RateLimit = config.LoadRateLimitConfig()
+
 	if cfg.DB != nil {
 		adminService := services.NewAdminService(cfg.DB, authService)
 		if err := adminService.InitializeAdminSystem(); err != nil {
