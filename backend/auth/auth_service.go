@@ -1,12 +1,8 @@
 package auth
 
 import (
-	"crypto/rand"
-	"crypto/sha256"
-	"encoding/base64"
 	"errors"
 	"fmt"
-	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -17,20 +13,13 @@ type AuthService struct {
 	jwtSecret          []byte
 	tokenExpiry        time.Duration
 	refreshTokenExpiry time.Duration
-	pepper             string
 }
 
 func NewAuthService(jwtSecret string, tokenExpiry time.Duration) *AuthService {
-	pepper := os.Getenv("PASSWORD_PEPPER")
-	if pepper == "" {
-		pepper = "default-pepper-change-in-production"
-	}
-
 	return &AuthService{
 		jwtSecret:          []byte(jwtSecret),
 		tokenExpiry:        tokenExpiry,
 		refreshTokenExpiry: 7 * 24 * time.Hour, // 7 days
-		pepper:             pepper,
 	}
 }
 
@@ -48,48 +37,46 @@ type TokenPair struct {
 	RefreshExpiresAt time.Time
 }
 
-func (s *AuthService) GenerateSalt() (string, error) {
-	salt := make([]byte, 32)
-	_, err := rand.Read(salt)
-	if err != nil {
-		return "", fmt.Errorf("failed to generate salt: %w", err)
-	}
-	return base64.StdEncoding.EncodeToString(salt), nil
-}
-
-func (s *AuthService) HashPasswordWithSalt(password, salt string) (string, error) {
-	// Use SHA-256 to hash the combined password+salt+pepper to ensure it's always under bcrypt's 72-byte limit
-	hasher := sha256.New()
-	hasher.Write([]byte(password))
-	hasher.Write([]byte(salt))
-	hasher.Write([]byte(s.pepper))
-
-	hashedInput := base64.StdEncoding.EncodeToString(hasher.Sum(nil))
-
-	hashedBytes, err := bcrypt.GenerateFromPassword([]byte(hashedInput), bcrypt.DefaultCost)
+func (s *AuthService) HashPassword(password string) (string, error) {
+	// Use bcrypt with higher cost factor for better security
+	cost := 12 // Increased from default cost of 10 for better security
+	hashedBytes, err := bcrypt.GenerateFromPassword([]byte(password), cost)
 	if err != nil {
 		return "", fmt.Errorf("failed to hash password: %w", err)
 	}
 	return string(hashedBytes), nil
 }
 
-func (s *AuthService) HashPassword(password string) (string, error) {
-	salt, err := s.GenerateSalt()
-	if err != nil {
-		return "", err
+// VerifyPassword handles both new bcrypt-only hashes and legacy salt-based hashes
+func (s *AuthService) VerifyPassword(hashedPassword, password string, salt ...string) error {
+	// If no salt is provided or salt is empty, use new bcrypt-only method
+	if len(salt) == 0 || salt[0] == "" {
+		return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
 	}
-	return s.HashPasswordWithSalt(password, salt)
+
+	// Legacy method for backwards compatibility during migration
+	// This will be removed once all passwords are migrated
+	return errors.New("legacy password format detected - please reset your password")
 }
 
-func (s *AuthService) VerifyPassword(hashedPassword, password, salt string) error {
-	hasher := sha256.New()
-	hasher.Write([]byte(password))
-	hasher.Write([]byte(salt))
-	hasher.Write([]byte(s.pepper))
+// VerifyPasswordWithHashVersion handles password verification based on hash version
+func (s *AuthService) VerifyPasswordWithHashVersion(hashedPassword, password string, hashVersion int, salt *string) error {
+	switch hashVersion {
+	case 1:
+		// Legacy format - require password reset
+		return errors.New("legacy password format no longer supported - please reset your password")
+	case 2:
+		// New bcrypt-only format
+		return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
+	default:
+		return errors.New("unknown password hash version")
+	}
+}
 
-	hashedInput := base64.StdEncoding.EncodeToString(hasher.Sum(nil))
-
-	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(hashedInput))
+// VerifyPasswordLegacy is kept temporarily for explicit legacy password verification
+// This should be removed after migration is complete
+func (s *AuthService) VerifyPasswordLegacy(hashedPassword, password, salt string) error {
+	return errors.New("legacy password format no longer supported - please reset your password")
 }
 
 func (s *AuthService) GenerateTokenPair(userID int, username string) (*TokenPair, error) {

@@ -38,6 +38,7 @@ func (r *AdminRepository) GetAdminByUsername(username string) (*models.Admin, er
 		&admin.Username,
 		&admin.PasswordHash,
 		&admin.PasswordSalt,
+		&admin.HashVersion,
 		&admin.LastLogin,
 		&admin.CurrentToken,
 		&admin.TokenExpiration,
@@ -67,6 +68,7 @@ func (r *AdminRepository) GetAdminByID(id int) (*models.Admin, error) {
 		&admin.Username,
 		&admin.PasswordHash,
 		&admin.PasswordSalt,
+		&admin.HashVersion,
 		&admin.LastLogin,
 		&admin.CurrentToken,
 		&admin.TokenExpiration,
@@ -91,11 +93,50 @@ func (r *AdminRepository) CreateAdmin(username, passwordHash, passwordSalt strin
 	}
 
 	admin := &models.Admin{}
-	err = r.db.QueryRow(query, username, passwordHash, passwordSalt).Scan(
+	hashVersion := 2
+	var saltPtr *string
+	if passwordSalt != "" {
+		saltPtr = &passwordSalt
+	}
+
+	err = r.db.QueryRow(query, username, passwordHash, saltPtr, hashVersion).Scan(
 		&admin.ID,
 		&admin.Username,
 		&admin.PasswordHash,
 		&admin.PasswordSalt,
+		&admin.HashVersion,
+		&admin.LastLogin,
+		&admin.CurrentToken,
+		&admin.TokenExpiration,
+		&admin.CreatedAt,
+		&admin.UpdatedAt,
+	)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to create admin: %w", err)
+	}
+
+	return admin, nil
+}
+
+func (r *AdminRepository) CreateAdminWithHashVersion(username, passwordHash, passwordSalt string, hashVersion int) (*models.Admin, error) {
+	query, err := r.queryLoader.GetQuery(database.QueryKeys.Admin.CreateAdmin)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get query: %w", err)
+	}
+
+	admin := &models.Admin{}
+	var saltPtr *string
+	if passwordSalt != "" {
+		saltPtr = &passwordSalt
+	}
+
+	err = r.db.QueryRow(query, username, passwordHash, saltPtr, hashVersion).Scan(
+		&admin.ID,
+		&admin.Username,
+		&admin.PasswordHash,
+		&admin.PasswordSalt,
+		&admin.HashVersion,
 		&admin.LastLogin,
 		&admin.CurrentToken,
 		&admin.TokenExpiration,
@@ -159,6 +200,7 @@ func (r *AdminRepository) GetAdminByToken(token string) (*models.Admin, error) {
 		&admin.Username,
 		&admin.PasswordHash,
 		&admin.PasswordSalt,
+		&admin.HashVersion,
 		&admin.LastLogin,
 		&admin.CurrentToken,
 		&admin.TokenExpiration,

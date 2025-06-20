@@ -70,17 +70,12 @@ func (s *AdminService) createDefaultAdmin() error {
 		return fmt.Errorf("ADMIN_USER and ADMIN_PASSWORD environment variables are required")
 	}
 
-	salt, err := s.authService.GenerateSalt()
-	if err != nil {
-		return fmt.Errorf("failed to generate salt: %w", err)
-	}
-
-	hashedPassword, err := s.authService.HashPasswordWithSalt(password, salt)
+	hashedPassword, err := s.authService.HashPassword(password)
 	if err != nil {
 		return fmt.Errorf("failed to hash password: %w", err)
 	}
 
-	admin, err := s.adminRepo.CreateAdmin(username, hashedPassword, salt)
+	admin, err := s.adminRepo.CreateAdminWithHashVersion(username, hashedPassword, "", 2)
 	if err != nil {
 		return fmt.Errorf("failed to create admin user: %w", err)
 	}

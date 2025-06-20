@@ -9,7 +9,8 @@ type Admin struct {
 	ID              int       `json:"id" db:"id"`
 	Username        string    `json:"username" db:"username"`
 	PasswordHash    string    `json:"-" db:"password_hash"`
-	PasswordSalt    string    `json:"-" db:"password_salt"`
+	PasswordSalt    *string   `json:"-" db:"password_salt"`
+	HashVersion     int       `json:"-" db:"hash_version"`
 	LastLogin       NullTime  `json:"last_login" db:"last_login"`
 	CurrentToken    *string   `json:"-" db:"current_token"`
 	TokenExpiration NullTime  `json:"-" db:"token_expiration"`

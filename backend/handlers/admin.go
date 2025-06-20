@@ -105,12 +105,19 @@ func (h *AdminHandler) Login(c *gin.Context) {
 		return
 	}
 
-	if err := h.authService.VerifyPassword(admin.PasswordHash, req.Password, admin.PasswordSalt); err != nil {
-		h.logLoginAttempt(c, false, "Invalid password")
-		c.JSON(http.StatusUnauthorized, models.ErrorResponse{
-			Error:   "Invalid credentials",
-			Message: "Username or password is incorrect",
-		})
+	if err := h.authService.VerifyPasswordWithHashVersion(admin.PasswordHash, req.Password, admin.HashVersion, admin.PasswordSalt); err != nil {
+		h.logLoginAttempt(c, false, "Invalid password: "+err.Error())
+		if err.Error() == "legacy password format no longer supported - please reset your password" {
+			c.JSON(http.StatusUnauthorized, models.ErrorResponse{
+				Error:   "Password reset required",
+				Message: "Your password format needs to be updated. Please reset your password.",
+			})
+		} else {
+			c.JSON(http.StatusUnauthorized, models.ErrorResponse{
+				Error:   "Invalid credentials",
+				Message: "Username or password is incorrect",
+			})
+		}
 		return
 	}
 
@@ -133,7 +140,6 @@ func (h *AdminHandler) Login(c *gin.Context) {
 		return
 	}
 
-	// Set HTTP-only cookies for tokens
 	isHttps := os.Getenv("HTTPS_MODE") == "true"
 
 	c.SetCookie(
@@ -142,8 +148,8 @@ func (h *AdminHandler) Login(c *gin.Context) {
 		int(tokenPair.AccessExpiresAt.Sub(time.Now()).Seconds()),
 		"/",
 		"",
-		isHttps, // Secure flag - true for HTTPS, false for HTTP
-		true,    // HTTP-only
+		isHttps,
+		true,
 	)
 
 	c.SetCookie(
@@ -152,8 +158,8 @@ func (h *AdminHandler) Login(c *gin.Context) {
 		int(tokenPair.RefreshExpiresAt.Sub(time.Now()).Seconds()),
 		"/",
 		"",
-		isHttps, // Secure flag - true for HTTPS, false for HTTP
-		true,    // HTTP-only
+		isHttps,
+		true,
 	)
 
 	h.logLoginAttempt(c, true, "Login successful")
@@ -201,7 +207,6 @@ func (h *AdminHandler) Logout(c *gin.Context) {
 		return
 	}
 
-	// Clear cookies
 	isHttps := os.Getenv("HTTPS_MODE") == "true"
 	c.SetCookie("access_token", "", -1, "/", "", isHttps, true)
 	c.SetCookie("refresh_token", "", -1, "/", "", isHttps, true)
@@ -233,7 +238,6 @@ func (h *AdminHandler) RefreshToken(c *gin.Context) {
 
 	claims, err := h.authService.ValidateRefreshToken(refreshToken)
 	if err != nil {
-		// Clear invalid cookies
 		isHttps := os.Getenv("HTTPS_MODE") == "true"
 		c.SetCookie("access_token", "", -1, "/", "", isHttps, true)
 		c.SetCookie("refresh_token", "", -1, "/", "", isHttps, true)
@@ -247,7 +251,6 @@ func (h *AdminHandler) RefreshToken(c *gin.Context) {
 
 	admin, err := h.adminRepo.GetAdminByToken(refreshToken)
 	if err != nil || admin == nil {
-		// Clear invalid cookies
 		isHttps := os.Getenv("HTTPS_MODE") == "true"
 		c.SetCookie("access_token", "", -1, "/", "", isHttps, true)
 		c.SetCookie("refresh_token", "", -1, "/", "", isHttps, true)
@@ -276,7 +279,6 @@ func (h *AdminHandler) RefreshToken(c *gin.Context) {
 		return
 	}
 
-	// Set new HTTP-only cookies
 	isHttps := os.Getenv("HTTPS_MODE") == "true"
 	c.SetCookie(
 		"access_token",
@@ -284,8 +286,8 @@ func (h *AdminHandler) RefreshToken(c *gin.Context) {
 		int(tokenPair.AccessExpiresAt.Sub(time.Now()).Seconds()),
 		"/",
 		"",
-		isHttps, // Secure flag - true for HTTPS, false for HTTP
-		true,    // HTTP-only
+		isHttps,
+		true,
 	)
 
 	c.SetCookie(
@@ -294,8 +296,8 @@ func (h *AdminHandler) RefreshToken(c *gin.Context) {
 		int(tokenPair.RefreshExpiresAt.Sub(time.Now()).Seconds()),
 		"/",
 		"",
-		isHttps, // Secure flag - true for HTTPS, false for HTTP
-		true,    // HTTP-only
+		isHttps,
+		true,
 	)
 
 	c.JSON(http.StatusOK, models.SuccessResponse{
