@@ -42,18 +42,12 @@ func SetupRoutes(r *gin.Engine, cfg *config.Config, authService *auth.AuthServic
 }
 
 func setupAdminRoutes(api *gin.RouterGroup, cfg *config.Config, authService *auth.AuthService) {
-	adminToken := os.Getenv("ADMIN_TOKEN")
-	if adminToken == "" {
-		adminToken = "1234"
-	}
-
 	adminRepo := repository.NewAdminRepository(cfg.DB)
 	loginAttemptRepo := repository.NewLoginAttemptRepository(cfg.DB)
 
 	adminHandler := handlers.NewAdminHandler(authService, adminRepo, loginAttemptRepo)
 
-	adminGroup := api.Group("/:adminToken/admin")
-	adminGroup.Use(middleware.AdminTokenValidationMiddleware(adminToken))
+	adminGroup := api.Group("/admin")
 	{
 		adminGroup.POST("/login",
 			middleware.RateLimitMiddleware(handlers.GetRateLimiterForLogin()),
@@ -80,14 +74,7 @@ func setupAssetRoutes(api *gin.RouterGroup, cfg *config.Config) {
 		assetsGroup.GET("/info", assetHandler.GetAssetInfo)
 	}
 
-	// Protected asset routes (require admin authentication)
-	adminToken := os.Getenv("ADMIN_TOKEN")
-	if adminToken == "" {
-		adminToken = "1234"
-	}
-
-	adminAssetGroup := api.Group("/:adminToken/admin/assets")
-	adminAssetGroup.Use(middleware.AdminTokenValidationMiddleware(adminToken))
+	adminAssetGroup := api.Group("/admin/assets")
 
 	if cfg.DB != nil {
 		adminRepo := repository.NewAdminRepository(cfg.DB)

@@ -67,7 +67,6 @@ export default function HeroBanner() {
         setShowUploadControls(false);
         setSelectedFile(null);
         setPreviewUrl("");
-        alert('Hero banner updated successfully!');
       } else if (uploadError) {
         alert(`Upload failed: ${uploadError}`);
       }

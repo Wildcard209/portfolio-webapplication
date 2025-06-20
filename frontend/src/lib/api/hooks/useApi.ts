@@ -170,11 +170,7 @@ export function useApiFileUpload<T>(
 }
 
 function getAdminEndpoint(endpoint: string): string {
-  const adminToken = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : null;
-  if (!adminToken) {
-    return '';
-  }
-  return `/${adminToken}/admin${endpoint}`;
+  return `/admin${endpoint}`;
 }
 
 export function useAdminApi<T>(

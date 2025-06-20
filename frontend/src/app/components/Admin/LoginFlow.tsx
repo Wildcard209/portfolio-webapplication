@@ -15,7 +15,6 @@ const LoginFlow = ({ adminToken }: LoginFlowProps) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    AuthService.setAdminToken(adminToken);
     if (AuthService.isAuthenticated()) {
       setIsLoggedIn(true);
     }

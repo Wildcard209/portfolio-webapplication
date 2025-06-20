@@ -21,20 +21,6 @@ interface ErrorResponse {
 export class AuthService {
   private static readonly TOKEN_KEY = 'auth_token';
   private static readonly USER_KEY = 'auth_user';
-  private static readonly ADMIN_TOKEN_KEY = 'admin_token';
-
-  static setAdminToken(token: string): void {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(this.ADMIN_TOKEN_KEY, token);
-    }
-  }
-
-  static getAdminToken(): string | null {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem(this.ADMIN_TOKEN_KEY);
-    }
-    return null;
-  }
 
   static setAuthData(token: string, user: any): void {
     if (typeof window !== 'undefined') {
@@ -71,14 +57,9 @@ export class AuthService {
   }
 
   static async login(username: string, password: string): Promise<{ success: boolean; error?: string }> {
-    const adminToken = this.getAdminToken();
-    if (!adminToken) {
-      return { success: false, error: 'Admin token not found' };
-    }
-
     try {
       const apiUrl = process.env.NEXT_PUBLIC_BASE_API_URL || 'http://localhost/api';
-      const response = await fetch(`${apiUrl}/${adminToken}/admin/login`, {
+      const response = await fetch(`${apiUrl}/admin/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -106,17 +87,16 @@ export class AuthService {
   }
 
   static async logout(): Promise<{ success: boolean; error?: string }> {
-    const adminToken = this.getAdminToken();
     const jwtToken = this.getToken();
     
-    if (!adminToken || !jwtToken) {
+    if (!jwtToken) {
       this.clearAuthData();
       return { success: true };
     }
 
     try {
       const apiUrl = process.env.NEXT_PUBLIC_BASE_API_URL || 'http://localhost/api';
-      const response = await fetch(`${apiUrl}/${adminToken}/admin/logout`, {
+      const response = await fetch(`${apiUrl}/admin/logout`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${jwtToken}`,
@@ -141,7 +121,6 @@ export class AuthService {
     if (typeof window !== 'undefined') {
       localStorage.removeItem(this.TOKEN_KEY);
       localStorage.removeItem(this.USER_KEY);
-      localStorage.removeItem(this.ADMIN_TOKEN_KEY);
     }
   }
 

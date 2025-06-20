@@ -66,26 +66,6 @@ func AuthMiddleware(authService *auth.AuthService, adminRepo *repository.AdminRe
 	}
 }
 
-func AdminTokenValidationMiddleware(adminToken string) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		tokenFromPath := c.Param("adminToken")
-
-		if tokenFromPath == "" {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Admin token is required in path"})
-			c.Abort()
-			return
-		}
-
-		if tokenFromPath != adminToken {
-			c.JSON(http.StatusForbidden, gin.H{"error": "Invalid admin token"})
-			c.Abort()
-			return
-		}
-
-		c.Next()
-	}
-}
-
 func SecurityHeadersMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Header("X-Content-Type-Options", "nosniff")
