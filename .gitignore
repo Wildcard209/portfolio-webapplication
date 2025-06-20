@@ -1,0 +1,37 @@
+# GitHub Copilot Configuration Files
+.github/
+.github/*
+.github/**/*
+
+# Security Documentation Files
+SECURITY_BEST_PRACTICES.md
+SECURITY_CHECKLIST.md
+
+# Project Documentation Files
+README.md
+PROJECT_IMPROVEMENTS_ANALYSIS.md
+
+# Environment Files
+.env
+.env.local
+.env.production
+.env.development
+
+# IDE Files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temporary Files
+tmp/
+temp/
