@@ -7,7 +7,6 @@ services:
       - ADMIN_TOKEN=${ADMIN_TOKEN}
       - BASE_API_URL=${BASE_API_URL}
       - ALLOWED_ORIGIN=${ALLOWED_ORIGIN}
-      - GOOGLE_ANALYTICS_ID=${GOOGLE_ANALYTICS_ID}
     volumes:
       - ./frontend:/app
       - /app/node_modules

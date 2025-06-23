@@ -4,6 +4,7 @@ import Footer from "@/app/components/Footer/Footer";
 import ClientWrapper from "@/app/components/ClientWrapper";
 import localFont from "next/font/local";
 import "./globals.scss";
+import Script from "next/script";
 
 const peanutButter = localFont({
   src: [{ path: "./fonts/Peanut Butter/Peanut-Butter.woff2" }],
@@ -32,22 +33,18 @@ export default function RootLayout({
 <head>
 
   {/* Google Analytics */}
-  {/* eslint-disable-next-line @next/next/no-sync-scripts */}
-  {googleAnalyticsId && (
-    <>
-      <script async src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsId}`}></script>
-      <script
-        dangerouslySetInnerHTML={{
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-36VT3MYPY5"
+          strategy="afterInteractive"
+        />
+        <Script id="gtag-init" strategy="afterInteractive" dangerouslySetInnerHTML={{
           __html: `
             window.dataLayer = window.dataLayer || [];
-            function gtag(){window.dataLayer.push(arguments);}
+            function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', '${googleAnalyticsId}');
+            gtag('config', 'G-36VT3MYPY5');
           `,
-        }}
-      />
-    </>
-  )}
+        }} />
 
   <link
     rel="icon"

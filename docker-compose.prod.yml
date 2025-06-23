@@ -1,0 +1,113 @@
+# Production Docker Compose Override
+# Use with: docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+services:
+  # Production nginx with SSL and domain configuration
+  nginx:
+    ports:
+      - "80:80"      # HTTP (redirects to HTTPS)
+      - "443:443"    # HTTPS
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      # SSL certificates for jessicawylde.co.uk (CloudFlare Origin Certificate)
+      - ./ssl/jessicawylde.co.uk.crt:/etc/ssl/certs/jessicawylde.co.uk.crt:ro
+      - ./ssl/jessicawylde.co.uk.key:/etc/ssl/private/jessicawylde.co.uk.key:ro
+    environment:
+      - DOMAIN=jessicawylde.co.uk
+    restart: unless-stopped
+
+  # Production frontend configuration
+  frontend:
+    environment:
+      - NODE_ENV=production
+      - ADMIN_TOKEN=${ADMIN_TOKEN}
+      - BASE_API_URL=${BASE_API_URL}
+      - ALLOWED_ORIGIN=${ALLOWED_ORIGIN}
+    restart: unless-stopped
+    # Remove port mapping since we're using nginx
+    ports: []
+
+  # Production backend configuration  
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    environment:
+      # Database Configuration
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_HOST: ${POSTGRES_HOST:-db}
+      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+      
+      # MinIO Configuration  
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT:-minio:9000}
+      
+      # Authentication Configuration
+      JWT_SECRET: ${JWT_SECRET}
+      ADMIN_TOKEN: ${ADMIN_TOKEN}
+      
+      # Production Security Configuration
+      HTTPS_MODE: "true"
+      GIN_MODE: "release"
+      CSP_MODE: "production"
+      SECURITY_HEADERS_ENABLED: "true"
+      HEADER_SANITIZATION_ENABLED: "true"
+      REMOVE_SERVER_HEADERS: "true"
+      REMOVE_VERSION_HEADERS: "true"
+      REMOVE_DEBUG_HEADERS: "true"
+      CUSTOM_SERVER_HEADER: ${CUSTOM_SERVER_HEADER:-Portfolio-API}
+      
+      # CORS Configuration
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
+      API_DOMAIN: ${API_DOMAIN}
+      
+      # Rate Limiting (Production values)
+      RATE_LIMIT_LOGIN_REQUESTS: ${RATE_LIMIT_LOGIN_REQUESTS:-3}
+      RATE_LIMIT_LOGIN_PERIOD: ${RATE_LIMIT_LOGIN_PERIOD:-1m}
+      RATE_LIMIT_REFRESH_REQUESTS: ${RATE_LIMIT_REFRESH_REQUESTS:-10}
+      RATE_LIMIT_REFRESH_PERIOD: ${RATE_LIMIT_REFRESH_PERIOD:-1m}
+      RATE_LIMIT_UPLOAD_REQUESTS: ${RATE_LIMIT_UPLOAD_REQUESTS:-2}
+      RATE_LIMIT_UPLOAD_PERIOD: ${RATE_LIMIT_UPLOAD_PERIOD:-1m}
+      RATE_LIMIT_API_REQUESTS: ${RATE_LIMIT_API_REQUESTS:-100}
+      RATE_LIMIT_API_PERIOD: ${RATE_LIMIT_API_PERIOD:-1m}
+      RATE_LIMIT_PUBLIC_REQUESTS: ${RATE_LIMIT_PUBLIC_REQUESTS:-50}
+      RATE_LIMIT_PUBLIC_PERIOD: ${RATE_LIMIT_PUBLIC_PERIOD:-1m}
+      RATE_LIMIT_ADMIN_REQUESTS: ${RATE_LIMIT_ADMIN_REQUESTS:-20}
+      RATE_LIMIT_ADMIN_PERIOD: ${RATE_LIMIT_ADMIN_PERIOD:-1m}
+      
+      # Admin User Configuration
+      ADMIN_USER: ${ADMIN_USER}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      
+      # Input Validation Configuration
+      MAX_FILE_SIZE: ${MAX_FILE_SIZE:-10485760}
+      MAX_REQUEST_BODY_SIZE: ${MAX_REQUEST_BODY_SIZE:-1048576}
+      MAX_FILENAME_LENGTH: ${MAX_FILENAME_LENGTH:-255}
+    restart: unless-stopped
+    # Remove port mapping since we're using nginx
+    ports: []
+
+  # Production database configuration
+  db:
+    restart: unless-stopped
+    # Remove external port mapping for security
+    ports: []
+    volumes:
+      - postgres-prod-data:/var/lib/postgresql/data
+
+  # Production MinIO configuration
+  minio:
+    restart: unless-stopped
+    # Remove external port mapping for security (access through nginx if needed)
+    ports: []
+    volumes:
+      - minio-prod-data:/data
+
+# Production-specific volumes
+volumes:
+  postgres-prod-data:
+    driver: local
+  minio-prod-data:
+    driver: local
