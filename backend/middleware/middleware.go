@@ -181,11 +181,11 @@ func generateCSPPolicy(mode string) string {
 	switch mode {
 	case "production":
 		return "default-src 'self'; " +
-			"script-src 'self' 'unsafe-inline'; " +
+			"script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; " +
 			"style-src 'self' 'unsafe-inline'; " +
 			"img-src 'self' data: https:; " +
 			"font-src 'self' https:; " +
-			"connect-src 'self'; " +
+			"connect-src 'self' https://www.google-analytics.com https://analytics.google.com; " +
 			"media-src 'self'; " +
 			"object-src 'none'; " +
 			"base-uri 'self'; " +
@@ -194,11 +194,11 @@ func generateCSPPolicy(mode string) string {
 			reportURI
 	case "development":
 		return "default-src 'self'; " +
-			"script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
+			"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com; " +
 			"style-src 'self' 'unsafe-inline'; " +
 			"img-src 'self' data: https: http:; " +
 			"font-src 'self' https: http:; " +
-			"connect-src 'self' ws: wss:; " +
+			"connect-src 'self' ws: wss: https://www.google-analytics.com https://analytics.google.com; " +
 			"media-src 'self'; " +
 			"object-src 'none'; " +
 			"base-uri 'self'; " +
@@ -207,11 +207,11 @@ func generateCSPPolicy(mode string) string {
 			reportURI
 	default:
 		return "default-src 'self'; " +
-			"script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
+			"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com; " +
 			"style-src 'self' 'unsafe-inline'; " +
 			"img-src 'self' data: https: http:; " +
 			"font-src 'self' https: http:; " +
-			"connect-src 'self' ws: wss:; " +
+			"connect-src 'self' ws: wss: https://www.google-analytics.com https://analytics.google.com; " +
 			"media-src 'self'; " +
 			"object-src 'none'; " +
 			"base-uri 'self'; " +
