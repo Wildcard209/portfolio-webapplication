@@ -14,7 +14,7 @@ export const useAuth = (): UseAuthReturn => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(true);
-  
+
   const { logout: apiLogout } = useLogout();
   const { checkAuth } = useCheckAuth();
 
@@ -31,7 +31,7 @@ export const useAuth = (): UseAuthReturn => {
         setIsAuthenticated(false);
         setUser(null);
       }
-      
+
       setLoading(false);
     };
 
