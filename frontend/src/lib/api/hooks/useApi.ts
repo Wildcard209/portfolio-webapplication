@@ -198,6 +198,7 @@ export function useAdminApiFileUpload<T>(endpoint: string, options: UseApiOption
   return useApiFileUpload<T>(adminEndpoint, options);
 }
 
-export function useApiAssetUrl(endpoint: string): string {
+// This is a utility function, not a React Hook
+export function getApiAssetUrl(endpoint: string): string {
   return ApiHandler.getAssetUrl(getApiEndpoint(endpoint));
 }

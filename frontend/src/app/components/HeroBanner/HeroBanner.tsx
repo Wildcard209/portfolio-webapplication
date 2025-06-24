@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react';
 import { useAuth } from '@/lib/hooks/useAuth';
-import { useApi, useAdminApiFileUpload, useApiAssetUrl } from '@/lib/api/hooks/useApi';
+import { useApi, useAdminApiFileUpload, getApiAssetUrl } from '@/lib/api/hooks/useApi';
 import { FileValidator } from '@/lib/validation/fileValidator';
 import styles from './HeroBanner.module.scss';
 
@@ -25,7 +25,7 @@ export default function HeroBanner() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const backgroundImage = assetInfo?.hero_banner_available
-    ? useApiAssetUrl('/assets/hero-banner')
+    ? getApiAssetUrl('/assets/hero-banner')
     : '';
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
