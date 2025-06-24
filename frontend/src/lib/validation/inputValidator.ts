@@ -9,7 +9,7 @@ export interface ValidationOptions {
   maxLength?: number;
   required?: boolean;
   pattern?: RegExp;
-  customValidator?: (value: string) => ValidationResult;
+  customValidator?: (_value: string) => ValidationResult;
 }
 
 export class InputValidator {

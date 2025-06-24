@@ -84,10 +84,9 @@ const LoginFlow = ({ adminToken }: LoginFlowProps) => {
         setIsLoggedIn(true);
       } else {
         setError(result.error || 'Login failed');
-      }
-    } catch (error) {
-      setError('An unexpected error occurred. Please try again.');
-    } finally {
+      }      } catch {
+        setError('An unexpected error occurred. Please try again.');
+      }finally {
       setIsLoading(false);
     }
   };

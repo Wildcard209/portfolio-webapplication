@@ -1,7 +1,8 @@
-interface LoginRequest {
-  username: string;
-  password: string;
-}
+// Interface for login requests - currently unused but kept for future use
+// interface LoginRequest {
+//   username: string;
+//   password: string;
+// }
 
 interface LoginResponse {
   token: string; // Will be empty now, kept for backward compatibility
@@ -57,7 +58,7 @@ export class AuthService {
         this.clearAuthData();
         return false;
       }
-    } catch (error) {
+    } catch {
       this.clearAuthData();
       return false;
     }
@@ -113,7 +114,7 @@ export class AuthService {
         console.warn('Backend logout failed, but local data cleared');
         return { success: true };
       }
-    } catch (error) {
+    } catch {
       this.clearAuthData();
       return { success: true };
     }

@@ -6,7 +6,7 @@ import { AuthService } from '../auth/authService';
 export interface UseAuthReturn {
   isAuthenticated: boolean;
   user: any | null;
-  login: (username: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  login: (_username: string, _password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<{ success: boolean; error?: string }>;
   loading: boolean;
 }
