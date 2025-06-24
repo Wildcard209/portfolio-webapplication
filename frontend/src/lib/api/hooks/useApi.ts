@@ -197,3 +197,7 @@ export function useAdminApiFileUpload<T>(endpoint: string, options: UseApiOption
   const adminEndpoint = getAdminEndpoint(endpoint);
   return useApiFileUpload<T>(adminEndpoint, options);
 }
+
+export function useApiAssetUrl(endpoint: string): string {
+  return ApiHandler.getAssetUrl(getApiEndpoint(endpoint));
+}
