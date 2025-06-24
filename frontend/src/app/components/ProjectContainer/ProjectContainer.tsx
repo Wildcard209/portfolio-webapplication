@@ -15,7 +15,7 @@ type ProjectContainerProps = {
   projects: ProjectData[];
 };
 
-const ProjectContainer: React.FC<ProjectContainerProps> = ({ projects }) => {
+const ProjectContainer: React.FC<ProjectContainerProps> = ({ projects }): React.ReactElement => {
   return (
     <div className={styles['projects-grid']}>
       {projects.map((project, index) => (

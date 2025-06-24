@@ -2,7 +2,7 @@
 // import ImageContent from "../components/CodeTable/ImageContent";
 // import TextContent from "../components/CodeTable/TextContent";
 
-export default function AboutMePage() {
+export default function AboutMePage(): React.ReactElement {
   return (
     //        <div>
     <h1 className="fancy-font text-title">About Me</h1>

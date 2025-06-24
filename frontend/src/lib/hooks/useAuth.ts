@@ -33,7 +33,7 @@ export const useAuth = (): UseAuthReturn => {
     return () => clearInterval(interval);
   }, []);
 
-  const login = async (username: string, password: string) => {
+  const login = async (username: string, password: string): Promise<{ success: boolean; error?: string }> => {
     setLoading(true);
     const result = await AuthService.login(username, password);
 
@@ -46,7 +46,7 @@ export const useAuth = (): UseAuthReturn => {
     return result;
   };
 
-  const logout = async () => {
+  const logout = async (): Promise<{ success: boolean; error?: string }> => {
     setLoading(true);
     const result = await AuthService.logout();
 

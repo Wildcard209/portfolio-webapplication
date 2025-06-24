@@ -1,14 +1,16 @@
 'use client';
 
+import { ReactNode } from 'react';
+
 interface ClientWrapperProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 if (typeof window !== 'undefined') {
   // Client-side code here if needed
 }
 
-const ClientWrapper: React.FC<ClientWrapperProps> = ({ children }) => {
+const ClientWrapper: React.FC<ClientWrapperProps> = ({ children }): React.ReactElement => {
   return <>{children}</>;
 };
 

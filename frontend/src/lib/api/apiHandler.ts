@@ -111,17 +111,22 @@ export class ApiHandler {
     options: RequestInit & FetchOptions = {}
   ): Promise<ApiResponse<T>> {
     const url = `${apiUrl}${endpoint}`;
-    console.log('Upload URL:', url);
-    console.log('FormData entries:', Array.from(formData.entries()));
+    // Debug logging for development only
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('Upload URL:', url);
+      console.warn('FormData entries:', Array.from(formData.entries()));
+    }
 
     let authHeaders = {};
     if (typeof window !== 'undefined') {
       const token = localStorage.getItem('auth_token');
       if (token) {
         authHeaders = { Authorization: `Bearer ${token}` };
-        console.log('Using auth token:', token.substring(0, 20) + '...');
-      } else {
-        console.log('No auth token found');
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('Using auth token:', token.substring(0, 20) + '...');
+        }
+      } else if (process.env.NODE_ENV === 'development') {
+        console.warn('No auth token found');
       }
     }
 
