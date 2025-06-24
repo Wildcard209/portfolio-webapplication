@@ -6,7 +6,6 @@ import { AuthService } from '../auth/authService';
 export interface UseAuthReturn {
   isAuthenticated: boolean;
   user: Record<string, unknown> | null;
-  login: (username: string, password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<{ success: boolean; error?: string }>;
   loading: boolean;
 }
@@ -33,19 +32,6 @@ export const useAuth = (): UseAuthReturn => {
     return () => clearInterval(interval);
   }, []);
 
-  const login = async (username: string, password: string): Promise<{ success: boolean; error?: string }> => {
-    setLoading(true);
-    const result = await AuthService.login(username, password);
-
-    if (result.success) {
-      setIsAuthenticated(true);
-      setUser(AuthService.getUser());
-    }
-
-    setLoading(false);
-    return result;
-  };
-
   const logout = async (): Promise<{ success: boolean; error?: string }> => {
     setLoading(true);
     const result = await AuthService.logout();
@@ -60,7 +46,6 @@ export const useAuth = (): UseAuthReturn => {
   return {
     isAuthenticated,
     user,
-    login,
     logout,
     loading,
   };
