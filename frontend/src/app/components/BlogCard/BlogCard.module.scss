@@ -110,11 +110,11 @@
   &-text {
     overflow: hidden;
     display: -webkit-box;
-    display: flex;
+    display: box;
     -webkit-line-clamp: 3;
     line-clamp: 3;
     -webkit-box-orient: vertical;
-    flex-direction: column;
+    box-orient: vertical;
     text-overflow: ellipsis;
     white-space: normal;
   }
