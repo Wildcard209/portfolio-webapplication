@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import ProjectCard from '../ProjectCard/ProjectCard';
 import styles from './ProjectContainer.module.scss';
 
