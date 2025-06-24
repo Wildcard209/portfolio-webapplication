@@ -9,6 +9,7 @@ export interface ValidationOptions {
   maxLength?: number;
   required?: boolean;
   pattern?: RegExp;
+  // eslint-disable-next-line no-unused-vars
   customValidator?: (value: string) => ValidationResult;
 }
 
@@ -195,6 +196,7 @@ export class InputValidator {
     if (!input) return '';
 
     // Remove control characters (except tab \x09, line feed \x0A, carriage return \x0D)
+    // eslint-disable-next-line no-control-regex
     let sanitized = input.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
 
     sanitized = sanitized
