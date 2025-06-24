@@ -9,7 +9,7 @@ export interface ValidationOptions {
   maxLength?: number;
   required?: boolean;
   pattern?: RegExp;
-  customValidator?: (_value: string) => ValidationResult;
+  customValidator?: (value: string) => ValidationResult;
 }
 
 export class InputValidator {
@@ -143,7 +143,7 @@ export class InputValidator {
     const hasUpper = /[A-Z]/.test(password);
     const hasLower = /[a-z]/.test(password);
     const hasDigit = /[0-9]/.test(password);
-    const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+    const hasSpecial = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password);
 
     const missing = [];
     if (!hasUpper) missing.push('uppercase letter');
@@ -194,6 +194,7 @@ export class InputValidator {
   static sanitizeInput(input: string): string {
     if (!input) return '';
 
+    // Remove control characters (except tab \x09, line feed \x0A, carriage return \x0D)
     let sanitized = input.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
 
     sanitized = sanitized

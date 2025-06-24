@@ -5,15 +5,15 @@ import { AuthService } from '../auth/authService';
 
 export interface UseAuthReturn {
   isAuthenticated: boolean;
-  user: any | null;
-  login: (_username: string, _password: string) => Promise<{ success: boolean; error?: string }>;
+  user: Record<string, unknown> | null;
+  login: (username: string, password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<{ success: boolean; error?: string }>;
   loading: boolean;
 }
 
 export const useAuth = (): UseAuthReturn => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

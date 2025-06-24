@@ -23,13 +23,13 @@ export class AuthService {
   private static readonly USER_KEY = 'auth_user';
 
   // Store only user info in localStorage, no tokens
-  static setUserData(user: any): void {
+  static setUserData(user: Record<string, unknown>): void {
     if (typeof window !== 'undefined') {
       localStorage.setItem(this.USER_KEY, JSON.stringify(user));
     }
   }
 
-  static getUser(): any | null {
+  static getUser(): Record<string, unknown> | null {
     if (typeof window !== 'undefined') {
       const userStr = localStorage.getItem(this.USER_KEY);
       return userStr ? JSON.parse(userStr) : null;

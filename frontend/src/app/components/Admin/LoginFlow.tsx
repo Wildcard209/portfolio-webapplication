@@ -84,9 +84,10 @@ const LoginFlow = ({ adminToken }: LoginFlowProps) => {
         setIsLoggedIn(true);
       } else {
         setError(result.error || 'Login failed');
-      }      } catch {
-        setError('An unexpected error occurred. Please try again.');
-      }finally {
+      }
+    } catch {
+      setError('An unexpected error occurred. Please try again.');
+    } finally {
       setIsLoading(false);
     }
   };
@@ -106,7 +107,7 @@ const LoginFlow = ({ adminToken }: LoginFlowProps) => {
     return (
       <div style={{ textAlign: 'center', padding: '20px' }}>
         <h2>Admin Panel</h2>
-        <p>Welcome back, {user?.username}!</p>
+        <p>Welcome back, {(user as { username?: string })?.username}!</p>
         <p>You are now authenticated and can access admin features.</p>
         <button
           onClick={handleLogout}
