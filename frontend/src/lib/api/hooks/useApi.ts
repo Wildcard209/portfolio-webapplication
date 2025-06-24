@@ -7,6 +7,18 @@ export type UseApiOptions = {
   lazy?: boolean;
 };
 
+function getApiEndpoint(endpoint: string): string {
+  if (endpoint.startsWith('/api/')) {
+    return endpoint;
+  }
+
+  if (endpoint.startsWith('/')) {
+    return `/api${endpoint}`;
+  }
+
+  return `/api/${endpoint}`;
+}
+
 export function useApi<T>(endpoint: string, options: UseApiOptions = {}) {
   const [data, setData] = useState<T | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -15,7 +27,7 @@ export function useApi<T>(endpoint: string, options: UseApiOptions = {}) {
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await ApiHandler.get<T>(endpoint, {
+      const response = await ApiHandler.get<T>(getApiEndpoint(endpoint), {
         next: {
           revalidate: options.revalidateTime,
           tags: options.cacheTag ? [options.cacheTag] : undefined,
@@ -68,21 +80,21 @@ export function useApiMutation<T, TData = unknown>(
 
         switch (method) {
           case 'POST':
-            response = await ApiHandler.post<T>(endpoint, payload, {
+            response = await ApiHandler.post<T>(getApiEndpoint(endpoint), payload, {
               next: {
                 tags: options.cacheTag ? [options.cacheTag] : undefined,
               },
             });
             break;
           case 'PUT':
-            response = await ApiHandler.put<T>(endpoint, payload, {
+            response = await ApiHandler.put<T>(getApiEndpoint(endpoint), payload, {
               next: {
                 tags: options.cacheTag ? [options.cacheTag] : undefined,
               },
             });
             break;
           case 'DELETE':
-            response = await ApiHandler.delete<T>(endpoint, {
+            response = await ApiHandler.delete<T>(getApiEndpoint(endpoint), {
               next: {
                 tags: options.cacheTag ? [options.cacheTag] : undefined,
               },
@@ -128,7 +140,7 @@ export function useApiFileUpload<T>(endpoint: string, options: UseApiOptions = {
     async (formData: FormData) => {
       setIsLoading(true);
       try {
-        const response = await ApiHandler.uploadFile<T>(endpoint, formData, {
+        const response = await ApiHandler.uploadFile<T>(getApiEndpoint(endpoint), formData, {
           next: {
             tags: options.cacheTag ? [options.cacheTag] : undefined,
           },
@@ -164,7 +176,7 @@ export function useApiFileUpload<T>(endpoint: string, options: UseApiOptions = {
 }
 
 function getAdminEndpoint(endpoint: string): string {
-  return `/admin${endpoint}`;
+  return `/api/admin${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
 }
 
 export function useAdminApi<T>(endpoint: string, options: UseApiOptions = {}) {
