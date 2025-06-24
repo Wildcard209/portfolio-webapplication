@@ -1,34 +1,33 @@
-"use client";
+'use client';
 
-import { useState, useRef } from "react";
-import { useAuth } from "@/lib/hooks/useAuth";
-import { useApi, useAdminApiFileUpload } from "@/lib/api/hooks/useApi";
-import { ApiHandler } from "@/lib/api/apiHandler";
-import { FileValidator } from "@/lib/validation/fileValidator";
-import styles from "./HeroBanner.module.scss";
+import { useState, useRef } from 'react';
+import { useAuth } from '@/lib/hooks/useAuth';
+import { useApi, useAdminApiFileUpload } from '@/lib/api/hooks/useApi';
+import { ApiHandler } from '@/lib/api/apiHandler';
+import { FileValidator } from '@/lib/validation/fileValidator';
+import styles from './HeroBanner.module.scss';
 
 export default function HeroBanner() {
   const { isAuthenticated } = useAuth();
-  
-  const { 
-    data: assetInfo, 
-    refetch: refetchAssetInfo 
-  } = useApi<{ hero_banner_available: boolean }>('/assets/info');
 
-  const { 
-    uploadFile, 
-    isLoading: uploading, 
-    error: uploadError 
+  const { data: assetInfo, refetch: refetchAssetInfo } = useApi<{ hero_banner_available: boolean }>(
+    '/assets/info'
+  );
+
+  const {
+    uploadFile,
+    isLoading: uploading,
+    error: uploadError,
   } = useAdminApiFileUpload('/assets/hero-banner');
 
   const [showUploadControls, setShowUploadControls] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string>("");
+  const [previewUrl, setPreviewUrl] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const backgroundImage = assetInfo?.hero_banner_available 
+  const backgroundImage = assetInfo?.hero_banner_available
     ? ApiHandler.getAssetUrl('/assets/hero-banner')
-    : "";
+    : '';
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -37,7 +36,7 @@ export default function HeroBanner() {
     const validationResult = FileValidator.validateFile(file, {
       maxSize: 10 * 1024 * 1024,
       allowedTypes: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
-      maxNameLength: 255
+      maxNameLength: 255,
     });
 
     if (!validationResult.isValid) {
@@ -57,7 +56,7 @@ export default function HeroBanner() {
     }
 
     setSelectedFile(file);
-    
+
     const preview = URL.createObjectURL(file);
     setPreviewUrl(preview);
   };
@@ -78,7 +77,7 @@ export default function HeroBanner() {
         await refetchAssetInfo();
         setShowUploadControls(false);
         setSelectedFile(null);
-        setPreviewUrl("");
+        setPreviewUrl('');
       } else if (uploadError) {
         alert(`Upload failed: ${uploadError}`);
       }
@@ -93,28 +92,26 @@ export default function HeroBanner() {
     setSelectedFile(null);
     if (previewUrl) {
       URL.revokeObjectURL(previewUrl);
-      setPreviewUrl("");
+      setPreviewUrl('');
     }
     if (fileInputRef.current) {
-      fileInputRef.current.value = "";
+      fileInputRef.current.value = '';
     }
   };
 
   const currentBackgroundImage = previewUrl || backgroundImage;
 
   return (
-    <div className={styles["hero-banner"]}>
-      <div 
-        className={`${styles["background-layer"]}`}
+    <div className={styles['hero-banner']}>
+      <div
+        className={`${styles['background-layer']}`}
         style={{
           backgroundImage: currentBackgroundImage ? `url(${currentBackgroundImage})` : undefined,
         }}
       ></div>
-      
-      <div className={`${styles["banner-text"]}`}>
-        <h1 className={`fancy-font ${styles["banner-text-large"]}`}>
-          Jessica Wylde
-        </h1>
+
+      <div className={`${styles['banner-text']}`}>
+        <h1 className={`fancy-font ${styles['banner-text-large']}`}>Jessica Wylde</h1>
         <p>Software Engineer</p>
       </div>
 
@@ -122,47 +119,43 @@ export default function HeroBanner() {
       {isAuthenticated && !showUploadControls && (
         <button
           onClick={() => setShowUploadControls(true)}
-          className={styles["admin-toggle-button"]}
+          className={styles['admin-toggle-button']}
         >
           Change Hero Banner
         </button>
       )}
 
       {isAuthenticated && showUploadControls && (
-        <div className={styles["admin-controls-panel"]}>
+        <div className={styles['admin-controls-panel']}>
           <input
             ref={fileInputRef}
             type="file"
             accept="image/*"
             onChange={handleFileSelect}
-            className={styles["file-input"]}
+            className={styles['file-input']}
           />
-          
+
           {selectedFile && (
-            <div className={styles["file-info"]}>
+            <div className={styles['file-info']}>
               <p>Selected: {selectedFile.name}</p>
             </div>
           )}
 
-          <div className={styles["button-group"]}>
+          <div className={styles['button-group']}>
             <button
               onClick={handleUpload}
               disabled={!selectedFile || uploading}
-              className={`${styles["upload-button"]} ${
-                selectedFile && !uploading 
-                  ? styles["enabled"] 
-                  : styles["disabled"]
+              className={`${styles['upload-button']} ${
+                selectedFile && !uploading ? styles['enabled'] : styles['disabled']
               }`}
             >
               {uploading ? 'Uploading...' : 'Upload'}
             </button>
-            
+
             <button
               onClick={handleCancel}
               disabled={uploading}
-              className={`${styles["cancel-button"]} ${
-                uploading ? styles["disabled"] : ""
-              }`}
+              className={`${styles['cancel-button']} ${uploading ? styles['disabled'] : ''}`}
             >
               Cancel
             </button>

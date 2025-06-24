@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from 'react';
 
 export function useVisibilityObserver<T extends HTMLElement>(): [
   boolean,
@@ -9,10 +9,9 @@ export function useVisibilityObserver<T extends HTMLElement>(): [
 
   useEffect(() => {
     const currentRef = ref.current;
-    const observer = new IntersectionObserver(
-      ([entry]) => setIsVisible(entry.isIntersecting),
-      { threshold: 0.1 },
-    );
+    const observer = new IntersectionObserver(([entry]) => setIsVisible(entry.isIntersecting), {
+      threshold: 0.1,
+    });
 
     if (currentRef) {
       observer.observe(currentRef);

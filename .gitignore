@@ -3,10 +3,6 @@
 .github/*
 .github/**/*
 
-# Security Documentation Files
-SECURITY_BEST_PRACTICES.md
-SECURITY_CHECKLIST.md
-
 # Project Documentation Files
 README.md
 PROJECT_IMPROVEMENTS_ANALYSIS.md

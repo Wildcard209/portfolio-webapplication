@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import ProjectCard from "../ProjectCard/ProjectCard";
-import styles from "./ProjectContainer.module.scss";
+import ProjectCard from '../ProjectCard/ProjectCard';
+import styles from './ProjectContainer.module.scss';
 
 export type ProjectData = {
   title: string;
@@ -17,7 +17,7 @@ type ProjectContainerProps = {
 
 const ProjectContainer: React.FC<ProjectContainerProps> = ({ projects }) => {
   return (
-    <div className={styles["projects-grid"]}>
+    <div className={styles['projects-grid']}>
       {projects.map((project, index) => (
         <ProjectCard
           key={`${project.imageId}-${index}`}

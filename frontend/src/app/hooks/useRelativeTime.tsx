@@ -1,34 +1,28 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 
 export function useRelativeTime(lastUpdated: Date): string {
-  const [relativeTime, setRelativeTime] = useState<string>("");
+  const [relativeTime, setRelativeTime] = useState<string>('');
 
   const calculateRelativeTime = (date: Date) => {
     const now = new Date();
-    const differenceInSeconds = Math.floor(
-      (now.getTime() - date.getTime()) / 1000,
-    );
+    const differenceInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
-    if (differenceInSeconds < 0) return "in the future";
+    if (differenceInSeconds < 0) return 'in the future';
 
     const formatTimeUnit = (value: number, unit: string): string =>
-      `${value} ${unit}${value !== 1 ? "s" : ""} ago`;
+      `${value} ${unit}${value !== 1 ? 's' : ''} ago`;
 
-    if (differenceInSeconds < 60)
-      return formatTimeUnit(differenceInSeconds, "second");
+    if (differenceInSeconds < 60) return formatTimeUnit(differenceInSeconds, 'second');
     const differenceInMinutes = Math.floor(differenceInSeconds / 60);
-    if (differenceInMinutes < 60)
-      return formatTimeUnit(differenceInMinutes, "minute");
+    if (differenceInMinutes < 60) return formatTimeUnit(differenceInMinutes, 'minute');
     const differenceInHours = Math.floor(differenceInMinutes / 60);
-    if (differenceInHours < 24)
-      return formatTimeUnit(differenceInHours, "hour");
+    if (differenceInHours < 24) return formatTimeUnit(differenceInHours, 'hour');
     const differenceInDays = Math.floor(differenceInHours / 24);
-    if (differenceInDays < 30) return formatTimeUnit(differenceInDays, "day");
+    if (differenceInDays < 30) return formatTimeUnit(differenceInDays, 'day');
     const differenceInMonths = Math.floor(differenceInDays / 30);
-    if (differenceInMonths < 12)
-      return formatTimeUnit(differenceInMonths, "month");
+    if (differenceInMonths < 12) return formatTimeUnit(differenceInMonths, 'month');
     const differenceInYears = Math.floor(differenceInMonths / 12);
-    return formatTimeUnit(differenceInYears, "year");
+    return formatTimeUnit(differenceInYears, 'year');
   };
 
   useEffect(() => {

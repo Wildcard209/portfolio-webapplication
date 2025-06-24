@@ -18,45 +18,39 @@ export class InputValidator {
     fieldName: string,
     options: ValidationOptions = {}
   ): ValidationResult {
-    const {
-      minLength = 0,
-      maxLength = 1000,
-      required = false,
-      pattern,
-      customValidator
-    } = options;
+    const { minLength = 0, maxLength = 1000, required = false, pattern, customValidator } = options;
 
     if (required && (!value || value.trim().length === 0)) {
       return {
         isValid: false,
-        error: `${fieldName} is required`
+        error: `${fieldName} is required`,
       };
     }
 
     if (!required && (!value || value.trim().length === 0)) {
       return {
-        isValid: true
+        isValid: true,
       };
     }
 
     if (value.length < minLength) {
       return {
         isValid: false,
-        error: `${fieldName} must be at least ${minLength} characters long`
+        error: `${fieldName} must be at least ${minLength} characters long`,
       };
     }
 
     if (value.length > maxLength) {
       return {
         isValid: false,
-        error: `${fieldName} must not exceed ${maxLength} characters`
+        error: `${fieldName} must not exceed ${maxLength} characters`,
       };
     }
 
     if (pattern && !pattern.test(value)) {
       return {
         isValid: false,
-        error: `${fieldName} format is invalid`
+        error: `${fieldName} format is invalid`,
       };
     }
 
@@ -65,7 +59,7 @@ export class InputValidator {
       if (patternInfo.pattern.test(value.toLowerCase())) {
         return {
           isValid: false,
-          error: `${fieldName} contains potentially dangerous content`
+          error: `${fieldName} contains potentially dangerous content`,
         };
       }
     }
@@ -78,7 +72,7 @@ export class InputValidator {
     }
 
     return {
-      isValid: true
+      isValid: true,
     };
   }
 
@@ -86,21 +80,21 @@ export class InputValidator {
     if (!username || username.trim().length === 0) {
       return {
         isValid: false,
-        error: 'Username is required'
+        error: 'Username is required',
       };
     }
 
     if (username.length < 3) {
       return {
         isValid: false,
-        error: 'Username must be at least 3 characters long'
+        error: 'Username must be at least 3 characters long',
       };
     }
 
     if (username.length > 50) {
       return {
         isValid: false,
-        error: 'Username must not exceed 50 characters'
+        error: 'Username must not exceed 50 characters',
       };
     }
 
@@ -108,19 +102,19 @@ export class InputValidator {
     if (!usernamePattern.test(username)) {
       return {
         isValid: false,
-        error: 'Username can only contain letters, numbers, underscores, and hyphens'
+        error: 'Username can only contain letters, numbers, underscores, and hyphens',
       };
     }
 
     if (!/^[a-zA-Z0-9]/.test(username)) {
       return {
         isValid: false,
-        error: 'Username must start with a letter or number'
+        error: 'Username must start with a letter or number',
       };
     }
 
     return {
-      isValid: true
+      isValid: true,
     };
   }
 
@@ -128,21 +122,21 @@ export class InputValidator {
     if (!password) {
       return {
         isValid: false,
-        error: 'Password is required'
+        error: 'Password is required',
       };
     }
 
     if (password.length < 8) {
       return {
         isValid: false,
-        error: 'Password must be at least 8 characters long'
+        error: 'Password must be at least 8 characters long',
       };
     }
 
     if (password.length > 128) {
       return {
         isValid: false,
-        error: 'Password must not exceed 128 characters'
+        error: 'Password must not exceed 128 characters',
       };
     }
 
@@ -160,12 +154,12 @@ export class InputValidator {
     if (missing.length > 0) {
       return {
         isValid: false,
-        error: `Password must contain at least one ${missing.join(', ')}`
+        error: `Password must contain at least one ${missing.join(', ')}`,
       };
     }
 
     return {
-      isValid: true
+      isValid: true,
     };
   }
 
@@ -173,7 +167,7 @@ export class InputValidator {
     if (!email || email.trim().length === 0) {
       return {
         isValid: false,
-        error: 'Email is required'
+        error: 'Email is required',
       };
     }
 
@@ -181,19 +175,19 @@ export class InputValidator {
     if (!emailPattern.test(email)) {
       return {
         isValid: false,
-        error: 'Please enter a valid email address'
+        error: 'Please enter a valid email address',
       };
     }
 
     if (email.length > 254) {
       return {
         isValid: false,
-        error: 'Email address is too long'
+        error: 'Email address is too long',
       };
     }
 
     return {
-      isValid: true
+      isValid: true,
     };
   }
 
@@ -227,7 +221,7 @@ export class InputValidator {
     }
 
     return {
-      isValid: true
+      isValid: true,
     };
   }
 
@@ -247,7 +241,7 @@ export class InputValidator {
     return Math.min(score, 4);
   }
 
-  private static getDangerousPatterns(): Array<{pattern: RegExp, description: string}> {
+  private static getDangerousPatterns(): Array<{ pattern: RegExp; description: string }> {
     return [
       { pattern: /union\s+select/i, description: 'SQL injection' },
       { pattern: /drop\s+table/i, description: 'SQL injection' },
@@ -261,7 +255,7 @@ export class InputValidator {
       { pattern: /onerror\s*=/i, description: 'XSS' },
       { pattern: /onclick\s*=/i, description: 'XSS' },
       { pattern: /eval\s*\(/i, description: 'Code injection' },
-      { pattern: /expression\s*\(/i, description: 'CSS injection' }
+      { pattern: /expression\s*\(/i, description: 'CSS injection' },
     ];
   }
 }

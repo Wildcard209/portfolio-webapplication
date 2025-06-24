@@ -7,10 +7,7 @@ export type UseApiOptions = {
   lazy?: boolean;
 };
 
-export function useApi<T>(
-  endpoint: string,
-  options: UseApiOptions = {}
-) {
+export function useApi<T>(endpoint: string, options: UseApiOptions = {}) {
   const [data, setData] = useState<T | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(!options.lazy);
@@ -68,7 +65,7 @@ export function useApiMutation<T, TData = unknown>(
       setIsLoading(true);
       try {
         let response;
-        
+
         switch (method) {
           case 'POST':
             response = await ApiHandler.post<T>(endpoint, payload, {
@@ -122,10 +119,7 @@ export function useApiMutation<T, TData = unknown>(
   };
 }
 
-export function useApiFileUpload<T>(
-  endpoint: string,
-  options: UseApiOptions = {}
-) {
+export function useApiFileUpload<T>(endpoint: string, options: UseApiOptions = {}) {
   const [data, setData] = useState<T | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -173,10 +167,7 @@ function getAdminEndpoint(endpoint: string): string {
   return `/admin${endpoint}`;
 }
 
-export function useAdminApi<T>(
-  endpoint: string,
-  options: UseApiOptions = {}
-) {
+export function useAdminApi<T>(endpoint: string, options: UseApiOptions = {}) {
   const adminEndpoint = getAdminEndpoint(endpoint);
   return useApi<T>(adminEndpoint, options);
 }
@@ -190,10 +181,7 @@ export function useAdminApiMutation<T, TData = unknown>(
   return useApiMutation<T, TData>(adminEndpoint, method, options);
 }
 
-export function useAdminApiFileUpload<T>(
-  endpoint: string,
-  options: UseApiOptions = {}
-) {
+export function useAdminApiFileUpload<T>(endpoint: string, options: UseApiOptions = {}) {
   const adminEndpoint = getAdminEndpoint(endpoint);
   return useApiFileUpload<T>(adminEndpoint, options);
 }

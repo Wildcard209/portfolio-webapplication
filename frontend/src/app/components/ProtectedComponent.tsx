@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useAuth } from '../../lib/hooks/useAuth';
 
@@ -21,8 +21,10 @@ const ProtectedComponent = () => {
   return (
     <div style={{ padding: '20px' }}>
       <h3>Protected Content</h3>
-      <p>Hello {user?.username}, this is protected content that only authenticated users can see.</p>
-      <button 
+      <p>
+        Hello {user?.username}, this is protected content that only authenticated users can see.
+      </p>
+      <button
         onClick={logout}
         style={{
           padding: '8px 16px',
@@ -30,7 +32,7 @@ const ProtectedComponent = () => {
           color: 'white',
           border: 'none',
           borderRadius: '4px',
-          cursor: 'pointer'
+          cursor: 'pointer',
         }}
       >
         Logout

@@ -1,6 +1,6 @@
-@use "../styles/variables" as v;
-@use "../styles/mixins" as m;
-@forward "../styles/common";
+@use '../styles/variables' as v;
+@use '../styles/mixins' as m;
+@forward '../styles/common';
 
 .fancy-font {
   font-family: v.$font-family-fancy;
@@ -34,7 +34,7 @@ body {
   flex: 1;
 
   &::after {
-    content: "";
+    content: '';
     flex: auto;
   }
 }

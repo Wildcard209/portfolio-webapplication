@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-if (typeof window !== "undefined") {
+if (typeof window !== 'undefined') {
   // Client-side code here if needed
 }
 

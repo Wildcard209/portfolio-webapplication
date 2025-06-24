@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import BlogCard from "@/app/components/BlogCard/BlogCard";
-import { useAuth } from "@/lib/hooks/useAuth";
+import BlogCard from '@/app/components/BlogCard/BlogCard';
+import { useAuth } from '@/lib/hooks/useAuth';
 
 export default function Blog() {
   const { isAuthenticated, loading } = useAuth();
 
   const handleAddBlog = () => {
     // TODO: Implement add blog functionality
-    alert("Add Blog functionality will be implemented here!");
+    alert('Add Blog functionality will be implemented here!');
   };
 
   return (
@@ -26,7 +26,7 @@ export default function Blog() {
               fontSize: '14px',
               fontWeight: '500',
               borderRadius: '6px',
-              minWidth: '120px'
+              minWidth: '120px',
             }}
           >
             Add Blog

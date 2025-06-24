@@ -19,7 +19,7 @@ export class ApiHandler {
   private static getDefaultHeaders(): HeadersInit {
     return {
       'Content-Type': 'application/json',
-      'Accept': 'application/json',
+      Accept: 'application/json',
       'Access-Control-Allow-Origin': allowedOrigin,
       'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization',
@@ -63,10 +63,7 @@ export class ApiHandler {
     }
   }
 
-  static async get<T>(
-    endpoint: string,
-    options: FetchOptions = {}
-  ): Promise<ApiResponse<T>> {
+  static async get<T>(endpoint: string, options: FetchOptions = {}): Promise<ApiResponse<T>> {
     const url = `${apiUrl}${endpoint}`;
     return this.fetchWithErrorHandling<T>(url, {
       method: 'GET',
@@ -100,17 +97,14 @@ export class ApiHandler {
     });
   }
 
-  static async delete<T>(
-    endpoint: string,
-    options: FetchOptions = {}
-  ): Promise<ApiResponse<T>> {
+  static async delete<T>(endpoint: string, options: FetchOptions = {}): Promise<ApiResponse<T>> {
     const url = `${apiUrl}${endpoint}`;
     return this.fetchWithErrorHandling<T>(url, {
       method: 'DELETE',
       ...options,
     });
   }
-  
+
   static async uploadFile<T>(
     endpoint: string,
     formData: FormData,
@@ -119,7 +113,7 @@ export class ApiHandler {
     const url = `${apiUrl}${endpoint}`;
     console.log('Upload URL:', url);
     console.log('FormData entries:', Array.from(formData.entries()));
-    
+
     let authHeaders = {};
     if (typeof window !== 'undefined') {
       const token = localStorage.getItem('auth_token');
@@ -137,7 +131,7 @@ export class ApiHandler {
         body: formData,
         credentials: 'include',
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'Access-Control-Allow-Origin': allowedOrigin,
           'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
           'Access-Control-Allow-Headers': 'Content-Type, Authorization',

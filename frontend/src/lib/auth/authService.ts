@@ -63,7 +63,10 @@ export class AuthService {
     }
   }
 
-  static async login(username: string, password: string): Promise<{ success: boolean; error?: string }> {
+  static async login(
+    username: string,
+    password: string
+  ): Promise<{ success: boolean; error?: string }> {
     try {
       const apiUrl = process.env.NEXT_PUBLIC_BASE_API_URL || 'http://localhost/api';
       const response = await fetch(`${apiUrl}/admin/login`, {
@@ -81,15 +84,15 @@ export class AuthService {
         return { success: true };
       } else {
         const errorData: ErrorResponse = await response.json();
-        return { 
-          success: false, 
-          error: errorData.message || errorData.error || 'Login failed' 
+        return {
+          success: false,
+          error: errorData.message || errorData.error || 'Login failed',
         };
       }
     } catch (error) {
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Network error' 
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Network error',
       };
     }
   }

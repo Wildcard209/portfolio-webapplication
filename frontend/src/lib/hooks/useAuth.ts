@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useState, useEffect } from 'react';
 import { AuthService } from '../auth/authService';
@@ -36,12 +36,12 @@ export const useAuth = (): UseAuthReturn => {
   const login = async (username: string, password: string) => {
     setLoading(true);
     const result = await AuthService.login(username, password);
-    
+
     if (result.success) {
       setIsAuthenticated(true);
       setUser(AuthService.getUser());
     }
-    
+
     setLoading(false);
     return result;
   };
@@ -49,11 +49,11 @@ export const useAuth = (): UseAuthReturn => {
   const logout = async () => {
     setLoading(true);
     const result = await AuthService.logout();
-    
+
     setIsAuthenticated(false);
     setUser(null);
     setLoading(false);
-    
+
     return result;
   };
 
