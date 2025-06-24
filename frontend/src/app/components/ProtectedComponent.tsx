@@ -22,7 +22,7 @@ const ProtectedComponent = () => {
     <div style={{ padding: '20px' }}>
       <h3>Protected Content</h3>
       <p>
-        Hello {user?.username}, this is protected content that only authenticated users can see.
+        Hello {(user as { username?: string })?.username}, this is protected content that only authenticated users can see.
       </p>
       <button
         onClick={logout}
