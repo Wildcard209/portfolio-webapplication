@@ -198,7 +198,128 @@ export function useAdminApiFileUpload<T>(endpoint: string, options: UseApiOption
   return useApiFileUpload<T>(adminEndpoint, options);
 }
 
-// This is a utility function, not a React Hook
 export function getApiAssetUrl(endpoint: string): string {
   return ApiHandler.getAssetUrl(getApiEndpoint(endpoint));
+}
+
+// Auth-specific hooks
+export function useLogin() {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  
+  const login = useCallback(async (username: string, password: string) => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const response = await ApiHandler.post<{
+        token: string;
+        expiresAt: string;
+        user: {
+          id: number;
+          username: string;
+          lastLogin?: string;
+        };
+      }>(getAdminEndpoint('/login'), { username, password });
+      
+      setIsLoading(false);
+      
+      if (response.error) {
+        setError(response.error);
+        return { success: false, error: response.error };
+      }
+      
+      // Store user data in localStorage
+      if (response.data?.user && typeof window !== 'undefined') {
+        localStorage.setItem('auth_user', JSON.stringify(response.data.user));
+      }
+      
+      return { success: true, user: response.data?.user || null };
+    } catch (err) {
+      setIsLoading(false);
+      const errorMessage = err instanceof Error ? err.message : 'Network error';
+      setError(errorMessage);
+      return { success: false, error: errorMessage };
+    }
+  }, []);
+  
+  return { login, isLoading, error };
+}
+
+export function useLogout() {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  
+  const logout = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      await ApiHandler.post(getAdminEndpoint('/logout'), null);
+      
+      // Always clear local storage, even if the API call fails
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('auth_user');
+      }
+      
+      setIsLoading(false);
+      return { success: true };
+    } catch (err) {
+      setIsLoading(false);
+      const errorMessage = err instanceof Error ? err.message : 'Network error';
+      setError(errorMessage);
+      
+      // Still clear local storage on error
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('auth_user');
+      }
+      
+      return { success: true }; // Return success:true because we cleared local data
+    }
+  }, []);
+  
+  return { logout, isLoading, error };
+}
+
+export function useCheckAuth() {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  
+  const checkAuth = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const response = await ApiHandler.post<{ success: boolean }>(
+        getAdminEndpoint('/refresh'), 
+        null
+      );
+      
+      setIsLoading(false);
+      
+      if (response.error || !response.data?.success) {
+        // Clear auth data if refresh fails
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('auth_user');
+        }
+        setError(response.error || 'Authentication failed');
+        return false;
+      }
+      
+      return true;
+    } catch (err) {
+      setIsLoading(false);
+      const errorMessage = err instanceof Error ? err.message : 'Network error';
+      setError(errorMessage);
+      
+      // Clear auth data on error
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('auth_user');
+      }
+      
+      return false;
+    }
+  }, []);
+  
+  return { checkAuth, isLoading, error };
 }

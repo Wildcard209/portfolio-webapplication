@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { AuthService } from '../../../lib/auth/authService';
+import { useLogin, useCheckAuth, useLogout } from '../../../lib/api/hooks/useApi';
 import { InputValidator } from '../../../lib/validation/inputValidator';
 
 interface LoginFlowProps {
@@ -18,17 +18,22 @@ const LoginFlow = ({ adminToken }: LoginFlowProps) => {
     username?: string;
     password?: string;
   }>({});
+  
+  // Hook declarations at the top level
+  const { login } = useLogin();
+  const { logout } = useLogout();
+  const { checkAuth } = useCheckAuth();
 
   useEffect(() => {
     const checkAuthStatus = async () => {
-      const isAuth = await AuthService.checkAuthStatus();
+      const isAuth = await checkAuth();
       if (isAuth) {
         setIsLoggedIn(true);
       }
     };
 
     checkAuthStatus();
-  }, [adminToken]);
+  }, [checkAuth, adminToken]);
 
   const validateInputs = (): boolean => {
     const errors: { username?: string; password?: string } = {};
@@ -78,7 +83,7 @@ const LoginFlow = ({ adminToken }: LoginFlowProps) => {
     setIsLoading(true);
 
     try {
-      const result = await AuthService.login(username, password);
+      const result = await login(username, password);
 
       if (result.success) {
         setIsLoggedIn(true);
@@ -94,7 +99,7 @@ const LoginFlow = ({ adminToken }: LoginFlowProps) => {
 
   const handleLogout = async () => {
     setIsLoading(true);
-    await AuthService.logout();
+    await logout();
     setIsLoggedIn(false);
     setUsername('');
     setPassword('');
@@ -103,11 +108,12 @@ const LoginFlow = ({ adminToken }: LoginFlowProps) => {
   };
 
   if (isLoggedIn) {
-    const user = AuthService.getUser();
+    const user = localStorage.getItem('auth_user');
+    const userData = user ? JSON.parse(user) : null;
     return (
       <div style={{ textAlign: 'center', padding: '20px' }}>
         <h2>Admin Panel</h2>
-        <p>Welcome back, {(user as { username?: string })?.username}!</p>
+        <p>Welcome back, {userData?.username}!</p>
         <p>You are now authenticated and can access admin features.</p>
         <button
           onClick={handleLogout}
