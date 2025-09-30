@@ -119,49 +119,6 @@ paths:
       summary: Upload hero banner image
       tags:
       - assets
-  /{adminToken}/admin/login:
-    post:
-      consumes:
-      - application/json
-      description: Authenticate admin user and return JWT token
-      parameters:
-      - description: Admin Token
-        in: path
-        name: adminToken
-        required: true
-        type: string
-      - description: Login credentials
-        in: body
-        name: loginRequest
-        required: true
-        schema:
-          $ref: '#/definitions/models.LoginRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.LoginResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/models.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/models.ErrorResponse'
-        "429":
-          description: Too Many Requests
-          schema:
-            $ref: '#/definitions/models.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.ErrorResponse'
-      summary: Admin login
-      tags:
-      - admin
   /{adminToken}/admin/logout:
     post:
       description: Invalidate current admin session
@@ -216,6 +173,44 @@ paths:
           schema:
             $ref: '#/definitions/models.ErrorResponse'
       summary: Refresh access token
+      tags:
+      - admin
+  /admin/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate admin user and return JWT token
+      parameters:
+      - description: Login credentials
+        in: body
+        name: loginRequest
+        required: true
+        schema:
+          $ref: '#/definitions/models.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "429":
+          description: Too Many Requests
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Admin login
       tags:
       - admin
   /api/assets/hero-banner:

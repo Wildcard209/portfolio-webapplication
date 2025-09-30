@@ -47,14 +47,13 @@ func NewAdminHandler(
 // @Tags admin
 // @Accept json
 // @Produce json
-// @Param adminToken path string true "Admin Token"
 // @Param loginRequest body models.LoginRequest true "Login credentials"
 // @Success 200 {object} models.LoginResponse
 // @Failure 400 {object} models.ErrorResponse
 // @Failure 401 {object} models.ErrorResponse
 // @Failure 429 {object} models.ErrorResponse
 // @Failure 500 {object} models.ErrorResponse
-// @Router /{adminToken}/admin/login [post]
+// @Router /admin/login [post]
 func (h *AdminHandler) Login(c *gin.Context) {
 	var req models.LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
