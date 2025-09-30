@@ -31,6 +31,11 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile.prod
+    depends_on:
+      db:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
     environment:
       # Database Configuration
       POSTGRES_USER: ${POSTGRES_USER}
@@ -96,6 +101,12 @@ services:
     ports: []
     volumes:
       - postgres-prod-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   # Production MinIO configuration
   minio:
@@ -104,6 +115,12 @@ services:
     ports: []
     volumes:
       - minio-prod-data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
 # Production-specific volumes
 volumes:
