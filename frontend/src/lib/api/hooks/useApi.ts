@@ -8,15 +8,7 @@ export type UseApiOptions = {
 };
 
 function getApiEndpoint(endpoint: string): string {
-  if (endpoint.startsWith('/api/')) {
-    return endpoint;
-  }
-
-  if (endpoint.startsWith('/')) {
-    return `/api${endpoint}`;
-  }
-
-  return `/api/${endpoint}`;
+  return endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
 }
 
 export function useApi<T>(endpoint: string, options: UseApiOptions = {}) {
