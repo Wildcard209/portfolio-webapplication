@@ -176,7 +176,7 @@ export function useApiFileUpload<T>(endpoint: string, options: UseApiOptions = {
 }
 
 function getAdminEndpoint(endpoint: string): string {
-  return `/api/admin${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
+  return `/admin${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
 }
 
 export function useAdminApi<T>(endpoint: string, options: UseApiOptions = {}) {
