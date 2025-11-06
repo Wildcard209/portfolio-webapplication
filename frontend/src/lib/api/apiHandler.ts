@@ -86,6 +86,7 @@ export class ApiHandler {
     options: FetchOptions = {}
   ): Promise<ApiResponse<T>> {
     const url = joinUrl(apiUrl, endpoint);
+    console.log('POST URL:', url);
     return this.fetchWithErrorHandling<T>(url, {
       method: 'POST',
       body: JSON.stringify(data),
