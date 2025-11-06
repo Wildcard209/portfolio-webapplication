@@ -15,6 +15,15 @@ type ApiResponse<T> = {
 const apiUrl = process.env.NEXT_PUBLIC_BASE_API_URL ?? '';
 const allowedOrigin = process.env.NEXT_PUBLIC_ALLOWED_ORIGIN ?? '';
 
+function joinUrl(base: string, endpoint: string) {
+  if (!base) return endpoint;
+  // Remove trailing slash from base
+  const cleanBase = base.replace(/\/$/, '');
+  // Ensure endpoint starts with a slash
+  const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  return `${cleanBase}${cleanEndpoint}`;
+}
+
 export class ApiHandler {
   private static getDefaultHeaders(): HeadersInit {
     return {
@@ -64,7 +73,7 @@ export class ApiHandler {
   }
 
   static async get<T>(endpoint: string, options: FetchOptions = {}): Promise<ApiResponse<T>> {
-    const url = `${apiUrl}${endpoint}`;
+    const url = joinUrl(apiUrl, endpoint);
     return this.fetchWithErrorHandling<T>(url, {
       method: 'GET',
       ...options,
@@ -76,7 +85,7 @@ export class ApiHandler {
     data: unknown,
     options: FetchOptions = {}
   ): Promise<ApiResponse<T>> {
-    const url = `${apiUrl}${endpoint}`;
+    const url = joinUrl(apiUrl, endpoint);
     return this.fetchWithErrorHandling<T>(url, {
       method: 'POST',
       body: JSON.stringify(data),
@@ -89,7 +98,7 @@ export class ApiHandler {
     data: unknown,
     options: FetchOptions = {}
   ): Promise<ApiResponse<T>> {
-    const url = `${apiUrl}${endpoint}`;
+    const url = joinUrl(apiUrl, endpoint);
     return this.fetchWithErrorHandling<T>(url, {
       method: 'PUT',
       body: JSON.stringify(data),
@@ -98,7 +107,7 @@ export class ApiHandler {
   }
 
   static async delete<T>(endpoint: string, options: FetchOptions = {}): Promise<ApiResponse<T>> {
-    const url = `${apiUrl}${endpoint}`;
+    const url = joinUrl(apiUrl, endpoint);
     return this.fetchWithErrorHandling<T>(url, {
       method: 'DELETE',
       ...options,
@@ -110,7 +119,7 @@ export class ApiHandler {
     formData: FormData,
     options: RequestInit & FetchOptions = {}
   ): Promise<ApiResponse<T>> {
-    const url = `${apiUrl}${endpoint}`;
+    const url = joinUrl(apiUrl, endpoint);
     // Debug logging for development only
     if (process.env.NODE_ENV === 'development') {
       console.warn('Upload URL:', url);
@@ -173,6 +182,6 @@ export class ApiHandler {
   }
 
   static getAssetUrl(endpoint: string): string {
-    return `${apiUrl}${endpoint}?t=${Date.now()}`;
+    return `${joinUrl(apiUrl, endpoint)}?t=${Date.now()}`;
   }
 }
