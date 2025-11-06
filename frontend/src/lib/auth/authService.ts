@@ -70,6 +70,7 @@ export class AuthService {
   ): Promise<{ success: boolean; error?: string }> {
     try {
       const apiUrl = process.env.NEXT_PUBLIC_BASE_API_URL || 'http://localhost/api';
+      console.log(apiUrl);
       const response = await fetch(`${apiUrl}/admin/login`, {
         method: 'POST',
         headers: {
